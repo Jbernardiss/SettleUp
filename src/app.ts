@@ -1,12 +1,10 @@
 
-
 import express, { Router, type Express, type Request, type Response } from "express";
+import eventsRouter from "./routers/router.events";
 
 const app: Router = Router();
 
-app.get("/hello", (req: Request, res: Response) => {
-    res.send("Hello from the router!");
-});
+app.use('/events', eventsRouter);
 
 export default app;
 
