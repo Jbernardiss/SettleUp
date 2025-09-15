@@ -1,0 +1,228 @@
+/* NFT Receipt Generator Styles */
+.nft-receipt-generator {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .trip-summary {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+  }
+  
+  .trip-summary h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .summary-grid {
+    display: grid;
+    gap: 12px;
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+  }
+  
+  .label {
+    font-weight: 500;
+    opacity: 0.9;
+  }
+  
+  .value {
+    font-weight: 600;
+  }
+  
+  .generated-image {
+    margin: 24px 0;
+    text-align: center;
+  }
+  
+  .generated-image h4 {
+    margin-bottom: 16px;
+    font-size: 1.2rem;
+  }
+  
+  .trip-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .nft-receipt {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 24px 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .nft-receipt h4 {
+    margin: 0 0 16px 0;
+    font-size: 1.3rem;
+    color: #ffd700;
+  }
+  
+  .receipt-details {
+    display: grid;
+    gap: 12px;
+  }
+  
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+  }
+  
+  .font-mono {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+  }
+  
+  .tx-link {
+    color: #ffd700;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+  }
+  
+  .tx-link:hover {
+    text-decoration: underline;
+  }
+  
+  .error-message {
+    background: rgba(255, 0, 0, 0.2);
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    border: 1px solid rgba(255, 0, 0, 0.3);
+  }
+  
+  .error-message h4 {
+    margin: 0 0 8px 0;
+    color: #ff6b6b;
+  }
+  
+  .actions {
+    margin: 24px 0;
+    text-align: center;
+  }
+  
+  .generate-btn {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+    color: #2d3748;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
+  }
+  
+  .generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  }
+  
+  .generate-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top: 2px solid #2d3748;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .warning {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    text-align: center;
+  }
+  
+  .info-box {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 24px;
+  }
+  
+  .info-box h5 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    color: #ffd700;
+  }
+  
+  .info-box ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  
+  .info-box li {
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .nft-receipt-generator {
+      margin: 16px;
+      padding: 16px;
+    }
+    
+    .summary-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    
+    .detail-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    
+    .generate-btn {
+      padding: 12px 24px;
+      font-size: 1rem;
+    }
+  }
