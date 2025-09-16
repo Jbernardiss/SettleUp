@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAllNotifications, answerEventNotification, answerExpenseNotification } from '../services/nodifications';
+import { useQuery,  } from '@tanstack/react-query';
+import { getAllNotifications } from '../services/nodifications';
 
 interface Notification {
   id: string;
