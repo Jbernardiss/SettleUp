@@ -17,7 +17,7 @@ export const postEvent = async (
   userId: string
 ): Promise<{ eventId: string }> => {
   try {
-    const response = await axios.post<{ eventId: string }>(`/`, { userId });
+    const response = await axios.post<{ eventId: string }>(`/create`, { userId });
     return response.data;
   } catch (error) {
     console.error("Error creating event:", error);
