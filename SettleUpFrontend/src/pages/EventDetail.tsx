@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useEvents, type Expense, type SettlementTransaction } from '../hooks/useEvents';
 import { Button } from '../components';
-import { postEventUser } from '../services';
+import { putEventUser } from '../services';
 import { useFreighterWallet } from '../contexts/FreighterWalletContext';
 
 export const EventDetail: React.FC = () => {
@@ -44,7 +44,7 @@ export const EventDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    if(inviteParam) postEventUser(eventId ?? '', publicKey ?? '')
+    if(inviteParam) putEventUser(eventId ?? '', publicKey ?? '')
   }, [])
 
   if (isLoading) return <div className="text-center p-10">Loading event details...</div>;

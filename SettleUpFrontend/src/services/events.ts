@@ -1,11 +1,11 @@
 import axios from "axios";
 
-export const postEventUser = async (
+export const putEventUser = async (
   eventId: string,
   userId: string
 ): Promise<any> => {
   try {
-    const response = await axios.post(`/${eventId}/add_user`, { userId });
+    const response = await axios.put(`/${eventId}/add_user`, { userId });
     return response.data;
   } catch (error) {
     console.error("Error fetching notifications:", error);
@@ -18,7 +18,10 @@ export const postEvent = async (
   userId: string
 ): Promise<{ eventId: string }> => {
   try {
-    const response = await axios.post<{ eventId: string }>(`/events/create`, { name, userId });
+    const response = await axios.post<{ eventId: string }>(`/events/create`, {
+      name,
+      userId,
+    });
     return response.data;
   } catch (error) {
     console.error("Error creating event:", error);
