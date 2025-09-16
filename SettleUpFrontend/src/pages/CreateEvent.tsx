@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, ArrowRight } from "lucide-react";
 import { postEvent } from "../services/events";
 import styles from "../styles/CreateEvent.module.css";
+import { useFreighterWallet } from "../contexts/FreighterWalletContext";
 
 interface EventData {
   id: string;
@@ -17,6 +18,7 @@ const CreateEvent: React.FC = () => {
   const [eventName, setEventName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { publicKey } = useFreighterWallet();
 
   const saveEventToStorage = (eventData: EventData) => {
     const events = JSON.parse(localStorage.getItem("settleup_events") || "[]");
@@ -43,7 +45,7 @@ const CreateEvent: React.FC = () => {
 
     try {
       // Create event via API
-      const { eventId } = await postEvent();
+      const { eventId } = await postEvent(publicKey ?? '');
 
       const eventData: EventData = {
         id: eventId,
@@ -54,13 +56,6 @@ const CreateEvent: React.FC = () => {
       };
 
       saveEventToStorage(eventData);
-
-      // Redirecionar para página de convites
-      navigate(
-        `/invite-qr?eventId=${eventData.id}&eventName=${encodeURIComponent(
-          eventData.name
-        )}`
-      );
     } catch (err) {
       setError("Erro ao criar evento. Tente novamente.");
     } finally {
