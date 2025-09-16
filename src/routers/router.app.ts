@@ -4,3 +4,5 @@ import path from "path";
 const appRouter = Router();
 
 appRouter.use(express.static(path.join(__dirname, 'public'))); 
+
+export default appRouter;
