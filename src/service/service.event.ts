@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { db } from '../utils/db'; 
 import { v4 as uuidv4 } from 'uuid';
-import * as admin from 'firebase-admin'; 
 import { Event, EventStatus } from "../models/model.event"
 import { Notification, NotificationStatus, NotificationType } from "../models/model.notification"
+import * as admin from 'firebase-admin'; 
 
 export const getEventById = async (req: Request, res: Response) => {
   try {
@@ -39,10 +39,10 @@ export const getEventsByUserId = async (req: Request, res: Response) => {
     const snapshot = await eventsRef.where('members', 'array-contains', userId).get();
 
     if (snapshot.empty) {
-      return res.status(200).json();
+      return res.status(200).json(); 
     }
 
-    let userEvents: any;
+    let userEvents: any; 
     snapshot.forEach(doc => {
       userEvents.push({ id: doc.id,...doc.data() });
     });
@@ -74,7 +74,7 @@ export const createEvent = async (req: Request, res: Response) => {
       nResponses: 0,
       totalAmount: 0,
       members: [], 
-      expenses: [], 
+      expenses: [],
       status: 'PENDING' as EventStatus
     });
 
@@ -103,156 +103,103 @@ export const createEvent = async (req: Request, res: Response) => {
   }
 };
 
-export const answerEventNotification = async (req: Request, res: Response) => {
-  try {
-    const { eventId } = req.params;
-    const { publicKey, status } = req.body;
+export const finishEvent = async (req: Request, res: Response): Promise<void> => {
+  const { eventId } = req.params;
 
-    if (!publicKey) {
-      return res.status(400).json({ error: 'User public key is required.' });
-    }
-
-    const eventRef = db.collection('events').doc(eventId);
-
-    if (status == "ACCEPTED" as NotificationStatus)
-      await eventRef.update({
-        members: admin.firestore.FieldValue.arrayUnion(publicKey)
-      });
-
-    const doc = await eventRef.get();
-    let { nInvitations, nResponses } = doc.data(); 
-    if (nInvitations == nResponses)
-      await eventRef.update({
-        status: "ONGOING" as EventStatus
-      });
-
-    res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
-  } catch (error) {
-    console.error('Error adding user to event:', error);
-    res.status(500).json({ error: 'Failed to add user.' });
+  if (!eventId) {
+    res.status(400).json({ error: 'Event ID is required.' });
+    return;
   }
-};
 
-export const answerExpenseNotification = async (req: Request, res: Response) => {
   try {
-    const { eventId } = req.params;
-    const { transactionHash, status } = req.body;
+    await db.runTransaction(async (transaction) => {
+      const eventRef = db.collection('events').doc(eventId);
+      const eventDoc = await transaction.get(eventRef);
 
-    if (!transactionHash) {
-      return res.status(400).json({ error: 'Transaction hash is required.' });
-    }
+      if (!eventDoc.exists) {
+        throw new Error('Event not found.');
+      }
 
-    const eventRef = db.collection('events').doc(eventId);
+      const event = eventDoc.data() as Event;
 
-    if (status == "ACCEPTED" as NotificationStatus)
-      await eventRef.update({
-        expenses: admin.firestore.FieldValue.arrayUnion(transactionHash)
-      });
+      if (event.status === 'FINISHED') {
+        throw new Error('This event has already been finished.');
+      }
 
-    res.status(201).json({ message: 'Expense hash added successfully', transactionHash: transactionHash });
-  } catch (error) {
-    console.error('Error adding expense:', error);
-    res.status(500).json({ error: 'Failed to add expense.' });
-  }
-};
+      const { members, expenses: expenseIds } = event;
+      const memberCount = members.length;
 
-export const finishEvent = async (req: Request, res: Response) => {
+      if (memberCount === 0) {
+        transaction.update(eventRef, { status: 'FINISHED' as EventStatus });
+        return;
+      }
+      
+      const expenseRefs = expenseIds.map((id) => db.collection('expenses').doc(id));
+      const expenseDocs = await transaction.getAll(...expenseRefs);
 
-    // Get event via id
-    const eventRef = db.collection('events').doc('190wma4uJJME5inVnzaD');
-    const doc = await eventRef.get();
-    const expenseRef = query(db.collection('expenses'), where('event', '==', '190wma4uJJME5inVnzaD'));
-    const event: Event = {
-      id: doc.id,
-      name: doc.data().name,
-      members: doc.data().members,
-      expenses: doc.data().expenses,
-      finished: doc.data().finished
-    }
+      const balances: { [memberId: string]: number } = {};
+      members.forEach((member) => (balances[member] = 0));
 
-
-
-    // Get transactions data
-    const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
-    async function getTransactionData(expense: string) {
-      try {
-        const tx = await server.transactions().transaction(expense).call();
-        // console.log("Transaction Data:", tx);
-        console.log(`Source Account: ${tx.source_account}`)
-
-        let amount;
-        const { records: operations } = await tx.operations()
-        for (const op of operations) {
-          if (op.type === 'payment' && op.asset_type === 'native') {
-            amount = op.amount
+      let totalEventCost = 0;
+      for (const doc of expenseDocs) {
+        if (doc.exists) {
+          const expense = doc.data() as { amount: number; origin: string; };
+          
+          if (expense && typeof expense.amount === 'number' && expense.origin) {
+            balances[expense.origin] += expense.amount;
+            totalEventCost += expense.amount;
           }
         }
-        return [tx.source_account, amount]
-      } catch (error) {
-        console.error("Error fetching transaction:", error);
       }
-    }
 
-    let expensesData = {}
-    for(let expense of event.expenses) {
-      expensesData[expense] = getTransactionData(expense)
-    }
+      const sharePerMember = totalEventCost / memberCount;
 
-
-    let individualTabs = {}
-    let individualTransactionsList = {}
-    for(let member of event.members) {
-        individualTabs[member] = []
-        individualTransactionsList[member] = []
-    }
-
-    for(let expense of event.expenses) {
-        let expenseData = expensesData[expense]
-        individualTabs[expenseData[0]].push(-(expenseData[1])); 
-    }
-    console.log(individualTabs)
-
-    let sum;
-    for(let member in individualTabs) {
-      sum = 0;
-      for(let value of individualTabs[member]) {
-        sum += value;
-      }
-    
-      individualTabs[member] = [sum]
-    }
-
-
-    for(let member in individualTabs) {
-      const split = individualTabs[member][0]/event.members.length
-      individualTabs[member].push(-(individualTabs[member][0] - split))
-
-      for(let otherMember in individualTabs) {
-        if (otherMember != member) {
-          individualTabs[otherMember].push(split)
-          individualTransactionsList[otherMember].push([member, split])
-        }
-      }
-    }
-
-    console.log(individualTransactionsList)
-    console.log(individualTabs)
-
-
-    try {
-      const { eventId } = req.params;
-      const eventRef = db.collection('events').doc(eventId);
-
-      await eventRef.update({
-        finished: true,
+      members.forEach((member) => {
+        balances[member] -= sharePerMember;
       });
 
-      res.status(200).json({ message: `Event ${eventId} has been marked as finished.` });
-    } catch (error) {
-      console.error('Error finishing event:', error);
-      res.status(500).json({ error: 'Failed to finish event.' });
-    }
+      for (const memberId of members) {
+        const finalBalance = balances[memberId];
+        const notificationRef = db.collection('notifications').doc();
+        
+        const message = finalBalance >= 0
+            ? `Event settled! You get back $${finalBalance.toFixed(2)}.`
+            : `Event settled! You owe $${Math.abs(finalBalance).toFixed(2)}.`;
 
-    
-    res.send(`Event ${req.params.eventId} finished`);
-}
+        const notificationPayload = {
+          destination: memberId,
+          eventId: eventId,
+          expenseId: '',
+          origin: 'system',
+          status: 'ACCEPTED' as NotificationStatus,
+          type: 'FINAL' as NotificationType,
+          message: message,
+          amount: finalBalance,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        transaction.set(notificationRef, notificationPayload);
+      }
+
+      transaction.update(eventRef, {
+        status: 'FINISHED' as EventStatus,
+        finalBalances: balances,
+      });
+    });
+
+    res.status(200).json({
+      message: `Event ${eventId} has been successfully finished.`,
+    });
+
+  } catch (error: any) {
+    console.error(`Failed to finish event ${eventId}:`, error);
+
+    if (error.message.includes('not found')) {
+      res.status(404).json({ error: error.message });
+    } else if (error.message.includes('already been finished')) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'An unexpected error occurred.' });
+    }
+  }
+};
