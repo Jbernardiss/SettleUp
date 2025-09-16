@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, EventsCARD } from "../components/index";
 import { useUserEvents } from "../hooks/useEvents"; // Importando o hook de eventos
 import { useFreighterWallet } from "../contexts/FreighterWalletContext";
+import { Plus } from "lucide-react";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +18,6 @@ export const Home: React.FC = () => {
     isLoading: walletIsLoading, // Renomeando para evitar conflito
     connect,
     disconnect,
-    refresh,
     makeTransaction,
   } = useFreighterWallet();
 
@@ -46,6 +46,10 @@ export const Home: React.FC = () => {
 
   const handleNotificacoesClick = useCallback(() => {
     navigate("/notificacoes");
+  }, [navigate]);
+
+  const handleCreateEventClick = useCallback(() => {
+    navigate("/qrcode");
   }, [navigate]);
 
   const showEvents = (events && events.length > 0);
@@ -118,8 +122,6 @@ export const Home: React.FC = () => {
               variant="secondary"
               disabled={false}
             />
-            <Button onClick={refresh} text="Refresh" variant="secondary" disabled={false} />
-            
             <Button onClick={disconnect} text="Disconnect" variant="tertiary" disabled={false} />
           </div>
         </div>
@@ -127,7 +129,17 @@ export const Home: React.FC = () => {
 
       {isPermitted && (
          <div className="mt-12 w-full max-w-2xl rounded-lg border border-gray-600 bg-gray-700 p-6 shadow-lg">
-            <h2 className="text-3xl font-bold mb-6 text-white">Meus Eventos</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-bold text-white">Meus Eventos</h2>
+              <button
+                onClick={handleCreateEventClick}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+                title="Criar novo evento"
+              >
+                <Plus size={20} />
+                Criar Evento
+              </button>
+            </div>
             {eventsIsLoading && <p className="text-white">Carregando eventos...</p>}
             {eventsError && <p className="text-red-400">Erro ao carregar eventos.</p>}
             <div className="flex flex-col gap-6">
