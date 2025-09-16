@@ -3,15 +3,28 @@
   margin: 0 auto;
   min-height: 100vh;
   background: #fff;
-  padding: 0 32px; /* Adiciona espaçamento nas laterais */
+  padding: 0 32px;
 }
 
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Alinha o primeiro item à esquerda e o último à direita */
   align-items: center;
-  padding: 16px 0; /* Ajustado para alinhar com o conteúdo */
+  padding: 16px 0;
   width: 100%;
+}
+
+/* NOVO: Grupo para alinhar sino e logo à direita */
+.rightHeaderGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Espaçamento entre o sino e o logo */
+}
+
+/* NOVO: Estilo para o logo no cabeçalho */
+.headerLogo {
+  height: 40px; /* Ajuste o tamanho conforme necessário */
+  width: auto;
 }
 
 .bellButton {
@@ -30,23 +43,22 @@
 
 .title {
   text-align: center;
-  font-size: 3.5rem; /* Aumentado o tamanho */
+  font-size: 3.5rem;
   margin-bottom: 2rem;
-  color: #764ba2; /* Cor roxa */
+  color: #764ba2;
   padding-top: 1rem;
   font-weight: 700;
 }
 
 .mainContent {
-  display: grid; /* MUDANÇA: Usando Grid para o layout */
-  grid-template-columns: 1fr 1fr; /* MUDANÇA: Duas colunas de tamanho igual */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 32px;
   width: 100%;
   padding: 0 0 32px 0;
 }
 
 .walletInfo {
-  /* REMOVIDO: flex e min-width */
   padding: 24px;
   border-radius: 16px;
   background: #f8f9fa;
@@ -105,7 +117,6 @@
   margin-top: 24px;
 }
 
-/* NOVO: Estilo genérico para botões com gradiente */
 .actionButton {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
@@ -118,9 +129,9 @@
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  justify-content: center; /* Centraliza o texto */
+  justify-content: center;
   gap: 8px;
-  width: 100%; /* Ocupa toda a largura do container */
+  width: 100%;
 }
 
 .actionButton:hover {
@@ -128,20 +139,18 @@
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
-
 .eventsSection {
   display: flex;
   flex-direction: column;
 }
 
-/* NOVO: Contêiner para a caixa de eventos */
 .eventsContainer {
   padding: 24px;
   border-radius: 16px;
   background: #f8f9fa;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #e9ecef;
-  flex-grow: 1; /* Faz a caixa crescer para preencher o espaço */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
@@ -151,7 +160,6 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  /* REMOVIDO: Estilos de caixa movidos para .eventsContainer */
 }
 
 .eventsTitle {
@@ -191,20 +199,19 @@
 .noEventsMessage {
   text-align: center;
   padding: 40px 20px;
-  color: #495057; /* Cor ajustada para cinza escuro */
-  font-size: 1.25rem; /* Texto maior */
-  font-weight: 500; /* Peso da fonte médio */
-  /* Removido o background-color e a borda */
+  color: #495057;
+  font-size: 1.25rem;
+  font-weight: 500;
   margin-top: 1rem;
-  flex-grow: 1; /* Adicionado para centralizar verticalmente */
-  display: flex; /* Adicionado para centralizar verticalmente */
-  align-items: center; /* Adicionado para centralizar verticalmente */
-  justify-content: center; /* Adicionado para centralizar verticalmente */
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 900px) {
   .mainContent {
-    grid-template-columns: 1fr; /* MUDANÇA: Coluna única em telas menores */
+    grid-template-columns: 1fr;
     align-items: center;
   }
 

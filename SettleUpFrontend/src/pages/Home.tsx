@@ -5,6 +5,7 @@ import { useUserEvents } from "../hooks/useEvents";
 import { useFreighterWallet } from "../contexts/FreighterWalletContext";
 import { Plus, Bell } from "lucide-react";
 import styles from "../styles/Home.module.css";
+import settleUpLogo from "../assets/settleup-logo.png"; // Importe o logo
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -71,17 +72,22 @@ export const Home: React.FC = () => {
           >
             Disconnect
           </button>
-          <button
-            onClick={handleNotificationClick}
-            className={styles.bellButton}
-            title="Notificações"
-          >
-            <Bell size={24} />
-          </button>
+          {/* MUDANÇA: Novo grupo para o sino e o logo, alinhado à direita */}
+          <div className={styles.rightHeaderGroup}>
+            <button
+              onClick={handleNotificationClick}
+              className={styles.bellButton}
+              title="Notificações"
+            >
+              <Bell size={24} />
+            </button>
+            <img src={settleUpLogo} alt="SettleUp Logo" className={styles.headerLogo} />
+          </div>
         </header>
       )}
 
-      <h1 className={styles.title}>SettleUp</h1>
+      {/* MUDANÇA: O título "SettleUp" principal agora é apenas um título */}
+      <h1 className={styles.title}>Dashboard</h1> 
 
       {isInstalled && !isPermitted && (
         <button
@@ -111,9 +117,9 @@ export const Home: React.FC = () => {
               )}
 
               {nativeBalance && (
-                  <div className={styles.balance}>
-                      <strong>Balance (XLM):</strong> {parseInt(nativeBalance, 10).toLocaleString()}
-                  </div>
+                <div className={styles.balance}>
+                  <strong>Balance (XLM):</strong> {nativeBalance}
+                </div>
               )}
 
               <div className={styles.transactionSection}>
