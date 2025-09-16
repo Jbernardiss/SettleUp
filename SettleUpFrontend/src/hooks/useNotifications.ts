@@ -16,13 +16,14 @@ interface UseNotificationsReturn {
   refetch: () => void;
 }
 
-export const useNotifications = (pollingInterval: number = 5000): UseNotificationsReturn => {
+export const useNotifications = (userId: string, pollingInterval: number = 5000): UseNotificationsReturn => {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['notifications'],
-    queryFn: getAllNotifications,
+    queryKey: ['notifications', userId],
+    queryFn: () => getAllNotifications(userId),
     refetchInterval: pollingInterval,
     refetchIntervalInBackground: true,
     staleTime: 0,
+    enabled: !!userId,
   });
 
   return {
