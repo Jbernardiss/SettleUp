@@ -57,9 +57,9 @@ export const getEventsByUserId = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    const { name, members, origin } = req.body;
+    const { name, origin } = req.body;
 
-    if (!name || !members || !Array.isArray(members) || members.length === 0 ||!origin) {
+    if (!name || !origin) {
       return res.status(400).json({ error: 'Event name, a list of members, and an origin public key are required.' });
     }
 
@@ -67,14 +67,11 @@ export const createEvent = async (req: Request, res: Response) => {
     const eventRef = db.collection('events').doc(eventId);
     const batch = db.batch();
 
-    const initialMembers = Array.from(new Set([origin, ...members]));
-
     batch.set(eventRef, {
       name: name,
-      nInvitations: members.length,
+      nInvitations: 0,
       nResponses: 0,
       totalAmount: 0,
-      members: initialMembers, 
       expenses: [],
       status: 'PENDING' as EventStatus,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -101,7 +98,8 @@ export const addUserToEvent = async (req: Request, res: Response) => {
     const eventRef = db.collection('events').doc(eventId);
     
     await eventRef.update({
-      members: admin.firestore.FieldValue.arrayUnion(publicKey)
+      members: admin.firestore.FieldValue.arrayUnion(publicKey),
+      nInvitations: admin.firestore.FieldValue.increment(1)
     });
 
     res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
