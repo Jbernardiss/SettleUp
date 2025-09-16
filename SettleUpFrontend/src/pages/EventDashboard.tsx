@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar, Users, Share2 } from 'lucide-react';
 import { useEvent } from '../hooks/useEvent';
 import { useShare } from '../hooks/useShare';
-import { EventData } from '../types/event';
+import { type EventData } from '../types/events';
 import styles from '../styles/EventDashboard.module.css';
 
 // Este é um exemplo de como integrar as funcionalidades criadas
 // em uma tela principal/dashboard do SettleUp
 
 const EventDashboard: React.FC = () => {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { getAllEvents } = useEvent();
   const { shareContent } = useShare();
   const [events, setEvents] = useState<EventData[]>([]);
@@ -22,18 +22,12 @@ const EventDashboard: React.FC = () => {
   }, []);
 
   const handleCreateEvent = () => {
-    router.push('/create-event');
+    navigate('/create-event');
   };
 
   const handleEventClick = (event: EventData) => {
     // Navegar para detalhes do evento
-    router.push({
-      pathname: '/invite-qr',
-      query: { 
-        eventId: event.id, 
-        eventName: event.name 
-      }
-    });
+    navigate(`/invite-qr?eventId=${event.id}&eventName=${encodeURIComponent(event.name)}`);
   };
 
   const handleShareEvent = async (event: EventData, e: React.MouseEvent) => {
