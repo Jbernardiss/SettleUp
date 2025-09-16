@@ -8,7 +8,7 @@ import {
   requestAccess,
   signTransaction,
 } from "@stellar/freighter-api";
-import Server, { Asset, Transaction, TransactionBuilder, Operation, Memo, Networks } from "stellar-sdk";
+import Server, { Horizon, Asset, Transaction, TransactionBuilder, Operation, Memo, Networks } from "stellar-sdk";
 
 // Test wallet information type
 type TestWalletInfo = {
@@ -67,7 +67,7 @@ export function useFreighterTestWallet(): TestWalletInfo &
   // Get the appropriate server based on network
   const getServer = useCallback(() => {
     if (isTestnet()) {
-      return new Server("https://horizon-testnet.stellar.org");
+      return new Horizon.Server("https://horizon-testnet.stellar.org");
     }
     return new Server("https://horizon.stellar.org");
   }, [isTestnet]);
