@@ -40,4 +40,5 @@ const express_1 = __importStar(require("express"));
 const path_1 = __importDefault(require("path"));
 const appRouter = (0, express_1.Router)();
 appRouter.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
+exports.default = appRouter;
 //# sourceMappingURL=router.app.js.map
