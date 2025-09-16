@@ -82,12 +82,6 @@ export const Home: React.FC = () => {
 
       <h1 className={styles.title}>SettleUp</h1>
 
-      {!isInstalled && (
-        <div className="text-red-600">
-          Freighter extension not installed. Please install it to continue.
-        </div>
-      )}
-
       {isInstalled && !isPermitted && (
         <Button
           onClick={connect}
