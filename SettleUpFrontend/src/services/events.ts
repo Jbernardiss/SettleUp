@@ -1,7 +1,5 @@
 import axios from "axios";
 
-// axios.defaults.baseURL = 'https://settleup-seven.vercel.app/';
-
 export const postEventUser = async (eventId: string, userId: string): Promise<Notification[]> => {
   try {
     const response = await axios.post<Notification[]>(
