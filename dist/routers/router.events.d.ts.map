@@ -1,1 +1,1 @@
-{"version":3,"file":"router.events.d.ts","sourceRoot":"","sources":["../../src/routers/router.events.ts"],"names":[],"mappings":"AAQA,QAAA,MAAM,YAAY,4CAAW,CAAC;AAU9B,eAAe,YAAY,CAAC"}
+{"version":3,"file":"router.events.d.ts","sourceRoot":"","sources":["../../src/routers/router.events.ts"],"names":[],"mappings":"AASA,QAAA,MAAM,YAAY,4CAAW,CAAC;AAqB9B,eAAe,YAAY,CAAC"}

@@ -42,7 +42,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.finishEvent = exports.createEvent = exports.getEventsByUserId = exports.getEventById = void 0;
+exports.finishEvent = exports.addUserToEvent = exports.createEvent = exports.getEventsByUserId = exports.getEventById = void 0;
 const db_1 = require("../utils/db");
 const uuid_1 = require("uuid");
 const admin = __importStar(require("firebase-admin"));
@@ -98,17 +98,19 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const eventId = (0, uuid_1.v4)();
         const eventRef = db_1.db.collection('events').doc(eventId);
         const batch = db_1.db.batch();
+        const initialMembers = Array.from(new Set([origin, ...members]));
         batch.set(eventRef, {
             name: name,
             nInvitations: members.length,
             nResponses: 0,
             totalAmount: 0,
-            members: [],
+            members: initialMembers,
             expenses: [],
-            status: 'PENDING'
+            status: 'PENDING',
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         yield batch.commit();
-        res.status(201).json({ message: 'Event created and notifications sent successfully', eventId: eventId });
+        res.status(201).json({ message: 'Event created successfully', eventId: eventId });
     }
     catch (error) {
         console.error('Error creating event:', error);
@@ -116,6 +118,25 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.createEvent = createEvent;
+const addUserToEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { eventId } = req.params;
+        const { publicKey } = req.body;
+        if (!publicKey) {
+            return res.status(400).json({ error: 'User public key is required.' });
+        }
+        const eventRef = db_1.db.collection('events').doc(eventId);
+        yield eventRef.update({
+            members: admin.firestore.FieldValue.arrayUnion(publicKey)
+        });
+        res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
+    }
+    catch (error) {
+        console.error('Error adding user to event:', error);
+        res.status(500).json({ error: 'Failed to add user.' });
+    }
+});
+exports.addUserToEvent = addUserToEvent;
 const finishEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { eventId } = req.params;
     if (!eventId) {
@@ -187,6 +208,7 @@ const finishEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                     origin: 'system',
                     status: 'ACCEPTED',
                     type: 'FINAL',
+                    message: 'Event finished. See your settlement instructions.',
                     amount: finalBalance,
                     settlement: userSpecificTransactions,
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),

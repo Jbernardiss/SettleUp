@@ -7,13 +7,15 @@ type Notification = {
     eventId: string;
     expenseId: string;
     origin: string;
-    status: boolean;
+    status?: NotificationStatus;
     type: NotificationType;
-    settlement: {
+    settlement?: {
         from: string;
         to: string;
         amount: number;
-    };
+    }[];
+    amount?: number;
+    read?: boolean;
     createdAt: Timestamp;
 };
 export { Notification, NotificationType, NotificationStatus };

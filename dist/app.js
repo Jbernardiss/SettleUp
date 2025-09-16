@@ -54,5 +54,19 @@ app.use('/notificacoes', router_app_1.default);
 app.use('/carteira', router_app_1.default);
 app.use('/qrcode', router_app_1.default);
 app.use('/invite-qr', router_app_1.default);
+app.use('/nft', router_app_1.default);
+// Single Page App fallback to index.html for unmatched GET routes
+app.use((req, res, next) => {
+    if (req.method !== 'GET')
+        return next();
+    const acceptsHtml = (req.headers['accept'] || '').toString().includes('text/html');
+    if (!acceptsHtml)
+        return next();
+    const indexPath = path_1.default.join(__dirname, '../SettleUpFrontend/dist', 'index.html');
+    res.sendFile(indexPath, (err) => {
+        if (err)
+            next();
+    });
+});
 exports.default = app;
 //# sourceMappingURL=app.js.map

@@ -79,7 +79,10 @@ const createExpense = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (!eventDoc.exists) {
             return res.status(404).json({ error: 'Event not found.' });
         }
-        const members = (_a = eventDoc.data()) === null || _a === void 0 ? void 0 : _a.members;
+        const members = ((_a = eventDoc.data()) === null || _a === void 0 ? void 0 : _a.members) || [];
+        if (!Array.isArray(members) || members.length === 0) {
+            return res.status(400).json({ error: 'Event has no members to notify.' });
+        }
         const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
         function getTransactionData(expense) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -94,17 +97,25 @@ const createExpense = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                             amount = op.amount;
                         }
                     }
+                    if (!amount) {
+                        throw new Error('Only native payment operations are supported for expenses.');
+                    }
                     return [tx.source_account, amount];
                 }
                 catch (error) {
                     console.error("Error fetching transaction:", error);
+                    throw new Error('Failed to fetch transaction from Horizon.');
                 }
             });
         }
-        let [origin, amount] = yield getTransactionData(expenseId);
+        const [origin, amountStr] = yield getTransactionData(expenseId);
+        const amount = parseFloat(String(amountStr));
+        if (!isFinite(amount) || amount <= 0) {
+            return res.status(400).json({ error: 'Invalid transaction amount.' });
+        }
         const batch = db_1.db.batch();
         batch.set(expenseRef, {
-            amount: parseFloat(amount),
+            amount: amount,
             event: eventId,
             nAccepted: 0,
             origin: origin,
@@ -118,6 +129,7 @@ const createExpense = (req, res) => __awaiter(void 0, void 0, void 0, function* 
                     eventId: eventId,
                     expenseId: expenseId,
                     type: 'EXPENSE',
+                    status: 'PENDING',
                     read: false,
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 });

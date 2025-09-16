@@ -54,9 +54,9 @@ const getNotificationsByUserId = (req, res) => __awaiter(void 0, void 0, void 0,
         const notificationsRef = db_1.db.collection('notifications');
         const snapshot = yield notificationsRef.where('destination', '==', userId).get();
         if (snapshot.empty) {
-            return res.status(200).json();
+            return res.status(200).json([]);
         }
-        let userNotifications;
+        const userNotifications = [];
         snapshot.forEach(doc => {
             userNotifications.push(Object.assign({ id: doc.id }, doc.data()));
         });
@@ -75,11 +75,11 @@ const answerExpenseNotification = (req, res) => __awaiter(void 0, void 0, void 0
         if (!expenseId || !status) {
             return res.status(400).json({ error: 'expenseId (transaction hash) and status are required.' });
         }
-        if (status !== 'ACCEPTED' && status !== 'REJECTED') {
-            return res.status(400).json({ error: 'Status must be either "ACCEPTED" or "REJECTED".' });
+        if (status !== 'ACCEPTED' && status !== 'REFUSED') {
+            return res.status(400).json({ error: 'Status must be either "ACCEPTED" or "REFUSED".' });
         }
         const expenseRef = db_1.db.collection('expenses').doc(expenseId);
-        if (status === "ACCEPTED") {
+        if (status === 'ACCEPTED') {
             yield expenseRef.update({
                 nAccepted: admin.firestore.FieldValue.increment(1)
             });
@@ -93,13 +93,31 @@ const answerExpenseNotification = (req, res) => __awaiter(void 0, void 0, void 0
             if (!eventDoc.exists) {
                 return res.status(404).json({ error: 'Associated event not found.' });
             }
-            const members = (_a = eventDoc.data()) === null || _a === void 0 ? void 0 : _a.members;
+            const members = ((_a = eventDoc.data()) === null || _a === void 0 ? void 0 : _a.members) || [];
             const requiredAcceptances = Math.floor(members.length / 2);
             if (nAccepted > requiredAcceptances) {
                 yield eventRef.update({
                     expenses: admin.firestore.FieldValue.arrayUnion(expenseId),
                     totalAmount: admin.firestore.FieldValue.increment(amount)
                 });
+                // Add informational notifications to members about accepted expense
+                const notificationsRef = db_1.db.collection('notifications');
+                for (const member of members) {
+                    if (member === updatedExpenseDoc.data().origin)
+                        continue;
+                    const notificationRef = notificationsRef.doc();
+                    yield notificationRef.set({
+                        destination: member,
+                        origin: updatedExpenseDoc.data().origin,
+                        eventId: eventId,
+                        expenseId: expenseId,
+                        type: 'EXPENSE',
+                        status: 'ACCEPTED',
+                        message: 'Expense accepted and added to event total',
+                        read: false,
+                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    });
+                }
             }
         }
         res.status(200).json({ message: `Successfully processed '${status}' response for expense ${expenseId}` });
