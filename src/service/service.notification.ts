@@ -32,36 +32,6 @@ export const getNotificationsByUserId = async(req: Request, res: Response) => {
   }
 }
 
-export const answerEventNotification = async (req: Request, res: Response) => {
-  try {
-    const { eventId } = req.params;
-    const { publicKey, status } = req.body;
-
-    if (!publicKey) {
-      return res.status(400).json({ error: 'User public key is required.' });
-    }
-
-    const eventRef = db.collection('events').doc(eventId);
-
-    if (status == "ACCEPTED" as NotificationStatus)
-      await eventRef.update({
-        members: admin.firestore.FieldValue.arrayUnion(publicKey)
-      });
-
-    const doc = await eventRef.get();
-    let { nInvitations, nResponses } = doc.data(); 
-    if (nInvitations == nResponses)
-      await eventRef.update({
-        status: "ONGOING" as EventStatus
-      });
-
-    res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
-  } catch (error) {
-    console.error('Error adding user to event:', error);
-    res.status(500).json({ error: 'Failed to add user.' });
-  }
-};
-
 export const answerExpenseNotification = async (req: Request, res: Response) => {
   try {
     const { expenseId, status } = req.body;
@@ -86,7 +56,7 @@ export const answerExpenseNotification = async (req: Request, res: Response) => 
         return res.status(404).json({ error: 'Expense document not found after update.' });
       }
 
-      const { nAccepted, event: eventId } = updatedExpenseDoc.data()!;
+      const { nAccepted, event: eventId, amount } = updatedExpenseDoc.data()!;
       
       const eventRef = db.collection('events').doc(eventId);
       const eventDoc = await eventRef.get();
@@ -100,7 +70,8 @@ export const answerExpenseNotification = async (req: Request, res: Response) => 
 
       if (nAccepted > requiredAcceptances) {
         await eventRef.update({
-          expenses: admin.firestore.FieldValue.arrayUnion(expenseId)
+          expenses: admin.firestore.FieldValue.arrayUnion(expenseId),
+          totalAmount: admin.firestore.FieldValue.increment(amount)
         });
       }
     }

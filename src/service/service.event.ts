@@ -40,11 +40,9 @@ export const getEventsByUserId = async (req: Request, res: Response) => {
     const snapshot = await eventsRef.where('members', 'array-contains', userId).get();
 
     if (snapshot.empty) {
-      // CORREÇÃO 1: Garante que um array vazio seja retornado se não houver eventos.
       return res.status(200).json([]); 
     }
 
-    // CORREÇÃO 2: Inicializa 'userEvents' como um array vazio.
     const userEvents: any[] = []; 
     snapshot.forEach(doc => {
       userEvents.push({ id: doc.id, ...doc.data() });
@@ -67,8 +65,6 @@ export const createEvent = async (req: Request, res: Response) => {
 
     const eventId = uuidv4();
     const eventRef = db.collection('events').doc(eventId);
-    const notificationsRef = db.collection('notifications');
-
     const batch = db.batch();
 
     batch.set(eventRef, {
@@ -79,22 +75,6 @@ export const createEvent = async (req: Request, res: Response) => {
       members: [], 
       expenses: [],
       status: 'PENDING' as EventStatus
-    });
-
-    members.forEach((memberPublicKey: string) => {
-      if (memberPublicKey !== origin) {
-        const notificationRef = notificationsRef.doc(); 
-        batch.set(notificationRef, {
-          destination: memberPublicKey,
-          origin: origin,
-          eventId: eventId,
-          expenseId: null, 
-          type: 'EVENT' as NotificationType,
-          status: 'PENDING' as NotificationStatus,
-          read: false,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(), 
-        });
-      }
     });
 
     await batch.commit();
@@ -124,7 +104,6 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
       if (!eventDoc.exists) {
         throw new Error('Event not found.');
       }
-
       const event = eventDoc.data() as Event;
 
       if (event.status === 'FINISHED') {
@@ -154,17 +133,12 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
         balances[member] -= sharePerMember;
       });
 
-      const debtors = members
-        .filter((m) => balances[m] < 0)
-        .map((m) => ({ id: m, amount: Math.abs(balances[m]) }));
-
-      const creditors = members
-        .filter((m) => balances[m] > 0)
-        .map((m) => ({ id: m, amount: balances[m] }));
-        
+      const debtors = members.filter((m) => balances[m] < 0).map((m) => ({ id: m, amount: Math.abs(balances[m]) }));
+      const creditors = members.filter((m) => balances[m] > 0).map((m) => ({ id: m, amount: balances[m] }));
+      
       let debtorIndex = 0;
       let creditorIndex = 0;
-      const epsilon = 1e-5; 
+      const epsilon = 1e-5;
 
       while (debtorIndex < debtors.length && creditorIndex < creditors.length) {
         const debtor = debtors[debtorIndex];
@@ -172,31 +146,27 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
         const transferAmount = Math.min(debtor.amount, creditor.amount);
 
         if (transferAmount > epsilon) {
-            settlementTransactions.push({
-                from: debtor.id,
-                to: creditor.id,
-                amount: transferAmount,
-            });
-
-            debtor.amount -= transferAmount;
-            creditor.amount -= transferAmount;
+          settlementTransactions.push({
+            from: debtor.id,
+            to: creditor.id,
+            amount: transferAmount,
+          });
+          debtor.amount -= transferAmount;
+          creditor.amount -= transferAmount;
         }
 
-        if (debtor.amount < epsilon) {
-          debtorIndex++;
-        }
-        if (creditor.amount < epsilon) {
-          creditorIndex++;
-        }
+        if (debtor.amount < epsilon) debtorIndex++;
+        if (creditor.amount < epsilon) creditorIndex++;
       }
 
-     for (const memberId of members) {
-        const finalBalance = balances[memberId];
+      for (const memberId of members) {
         const notificationRef = db.collection('notifications').doc();
         
-        const message = finalBalance >= 0
-            ? `Event settled! You get back $${finalBalance.toFixed(2)}.`
-            : `Event settled! You owe $${Math.abs(finalBalance).toFixed(2)}.`;
+        const userSpecificTransactions = settlementTransactions.filter(
+          (t) => t.from === memberId || t.to === memberId
+        );
+
+        const finalBalance = balances[memberId];
 
         const notificationPayload = {
           destination: memberId,
@@ -205,8 +175,8 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
           origin: 'system',
           status: 'ACCEPTED' as NotificationStatus,
           type: 'FINAL' as NotificationType,
-          message: message,
-          amount: finalBalance,
+          amount: finalBalance, 
+          settlement: userSpecificTransactions,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
@@ -216,6 +186,7 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
       transaction.update(eventRef, {
         status: 'FINISHED' as EventStatus,
         finalBalances: balances,
+        settlementTransactions: settlementTransactions,
       });
     });
 
@@ -226,7 +197,6 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
 
   } catch (error: any) {
     console.error(`Failed to finish event ${eventId}:`, error);
-
     if (error.message.includes('not found')) {
       res.status(404).json({ error: error.message });
     } else if (error.message.includes('already been finished')) {
