@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../utils/db'; 
-import * as StellarSdk from '@stellar/stellar-sdk'; 
+import * as StellarSdk from 'stellar-sdk'; 
 import * as admin from 'firebase-admin'; 
 
 export const createExpense = async (req: Request, res: Response) => {
