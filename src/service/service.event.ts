@@ -200,6 +200,7 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
           origin: 'system',
           status: 'ACCEPTED' as NotificationStatus,
           type: 'FINAL' as NotificationType,
+          message: 'Event finished. See your settlement instructions.',
           amount: finalBalance, 
           settlement: userSpecificTransactions,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),

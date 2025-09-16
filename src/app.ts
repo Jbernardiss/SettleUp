@@ -19,6 +19,18 @@ app.use('/notificacoes', appRouter)
 app.use('/carteira', appRouter)
 app.use('/qrcode', appRouter)
 app.use('/invite-qr', appRouter)
+app.use('/nft', appRouter)
+
+// Single Page App fallback to index.html for unmatched GET routes
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  const acceptsHtml = (req.headers['accept'] || '').toString().includes('text/html');
+  if (!acceptsHtml) return next();
+  const indexPath = path.join(__dirname, '../SettleUpFrontend/dist', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) next();
+  });
+});
 
 export default app;
 

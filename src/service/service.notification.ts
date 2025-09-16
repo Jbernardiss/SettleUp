@@ -72,6 +72,24 @@ export const answerExpenseNotification = async (req: Request, res: Response) => 
           expenses: admin.firestore.FieldValue.arrayUnion(expenseId),
           totalAmount: admin.firestore.FieldValue.increment(amount)
         });
+
+        // Add informational notifications to members about accepted expense
+        const notificationsRef = db.collection('notifications');
+        for (const member of members) {
+          if (member === updatedExpenseDoc.data()!.origin) continue;
+          const notificationRef = notificationsRef.doc();
+          await notificationRef.set({
+            destination: member,
+            origin: updatedExpenseDoc.data()!.origin,
+            eventId: eventId,
+            expenseId: expenseId,
+            type: 'EXPENSE',
+            status: 'ACCEPTED',
+            message: 'Expense accepted and added to event total',
+            read: false,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
       }
     }
 
