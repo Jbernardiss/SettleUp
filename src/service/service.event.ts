@@ -69,6 +69,7 @@ export const createEvent = async (req: Request, res: Response) => {
 
     batch.set(eventRef, {
       name: name,
+      members: [userId],
       nInvitations: 0,
       nResponses: 0,
       totalAmount: 0,

@@ -100,6 +100,7 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const batch = db_1.db.batch();
         batch.set(eventRef, {
             name: name,
+            members: [userId],
             nInvitations: 0,
             nResponses: 0,
             totalAmount: 0,
