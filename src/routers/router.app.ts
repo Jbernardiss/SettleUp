@@ -3,6 +3,7 @@ import path from "path";
 
 const appRouter = Router();
 
-appRouter.use(express.static(path.join(__dirname, 'public'))); 
+appRouter.get('/hello', (req, res) => res.send('asdfdasf'));
+appRouter.use(express.static(path.join(__dirname, '../../SettleUpFrontend/dist'))); 
 
 export default appRouter;

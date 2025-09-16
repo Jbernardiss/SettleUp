@@ -66,17 +66,17 @@ export const Notificacoes: React.FC = () => {
               <div className="flex justify-end space-x-2">
                 {notification.type === 'compra' && (
                   <>
-                    <Button onClick={() => handleResponse(notification.id, 'aceitou')} text="Aceitou" variant="primary" />
-                    <Button onClick={() => handleResponse(notification.id, 'recusou')} text="Recusou" variant="tertiary" />
+                    <Button onClick={() => handleResponse(notification.id, 'aceitou')} text="Aceitou" variant="primary" disabled={false}/>
+                    <Button onClick={() => handleResponse(notification.id, 'recusou')} text="Recusou" variant="tertiary" disabled={false}/>
                   </>
                 )}
                 {notification.type === 'fechamento do evento' && (
-                  <Button onClick={() => handleResponse(notification.id, 'pago')} text="Pagar" variant="secondary" />
+                  <Button onClick={() => handleResponse(notification.id, 'pago')} text="Pagar" variant="secondary" disabled={false}/>
                 )}
                 {notification.type === 'convite' && (
                   <>
-                    <Button onClick={() => handleResponse(notification.id, 'aceitou')} text="Aceitar" variant="primary" />
-                    <Button onClick={() => handleResponse(notification.id, 'recusou')} text="Recusar" variant="tertiary" />
+                    <Button onClick={() => handleResponse(notification.id, 'aceitou')} text="Aceitar" variant="primary" disabled={false}/>
+                    <Button onClick={() => handleResponse(notification.id, 'recusou')} text="Recusar" variant="tertiary" disabled={false}/>
                   </>
                 )}
               </div>

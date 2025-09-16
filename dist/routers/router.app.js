@@ -39,6 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importStar(require("express"));
 const path_1 = __importDefault(require("path"));
 const appRouter = (0, express_1.Router)();
-appRouter.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
+appRouter.get('/hello', (req, res) => res.send('asdfdasf'));
+appRouter.use(express_1.default.static(path_1.default.join(__dirname, '../../SettleUpFrontend/dist')));
 exports.default = appRouter;
 //# sourceMappingURL=router.app.js.map

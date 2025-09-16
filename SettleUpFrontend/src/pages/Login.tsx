@@ -39,11 +39,11 @@ export const Login: React.FC = () => {
 
       <div className="flex gap-3">
         {!isPermitted ? (
-          <Button onClick={handleConnect} text="Conectar Freighter" variant="primary" />
+          <Button onClick={handleConnect} text="Conectar Freighter" variant="primary" disabled={false}/>
         ) : (
           <>
-            <Button onClick={handleRefresh} text="Atualizar" variant="secondary" />
-            <Button onClick={handleDisconnect} text="Desconectar" variant="tertiary" />
+            <Button onClick={handleRefresh} text="Atualizar" variant="secondary" disabled={false}/>
+            <Button onClick={handleDisconnect} text="Desconectar" variant="tertiary" disabled={false}/>
           </>
         )}
       </div>

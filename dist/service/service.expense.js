@@ -42,10 +42,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createExpense = void 0;
+exports.createExpense = exports.getExpenseById = void 0;
 const db_1 = require("../utils/db");
 const StellarSdk = __importStar(require("stellar-sdk"));
 const admin = __importStar(require("firebase-admin"));
+const getExpenseById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { expenseId } = req.params;
+        if (!expenseId) {
+            return res.status(400).json({ error: 'Expense ID (transaction hash) is required.' });
+        }
+        const expenseRef = db_1.db.collection('expenses').doc(expenseId);
+        const doc = yield expenseRef.get();
+        if (!doc.exists) {
+            return res.status(404).json({ error: 'Expense not found.' });
+        }
+        res.status(200).json(Object.assign({ id: doc.id }, doc.data()));
+    }
+    catch (error) {
+        console.error('Error getting expense by ID:', error);
+        res.status(500).json({ error: 'Failed to retrieve expense.' });
+    }
+});
+exports.getExpenseById = getExpenseById;
 const createExpense = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {

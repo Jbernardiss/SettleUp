@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useEventWithExpenses, type SettlementTransaction } from '../hooks/useEvents';
+import { useEvents, type Expense, type SettlementTransaction } from '../hooks/useEvents';
 import { Button } from '../components';
 
 export const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { event, expenses, isLoading, error, refresh } = useEventWithExpenses(id);
+  const { event, expenses, isLoading, error, refresh } = useEvents(id);
 
   const [settlementPlan, setSettlementPlan] = useState<SettlementTransaction[] | null>(null);
   const [isFinishing, setIsFinishing] = useState(false);
@@ -85,7 +85,7 @@ export const EventDetail: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Expenses</h2>
           <div className="space-y-4">
-            {expenses.length > 0 ? expenses.map((exp) => (
+            {expenses.length > 0 ? expenses.map((exp: Expense) => (
               <div key={exp.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
                 <div>
                   <p className="font-semibold">{exp.description}</p>

@@ -20,7 +20,7 @@ export const EventsCARD: React.FC<EventsCARDProps> = ({ event }) => {
       // className="rounded-lg border border-pink-500 bg-gray-800 p-4 shadow-md cursor-pointer hover:shadow-lg hover:bg-gray-700 transition-all"
     >
       <h3 className="text-xl font-bold">{event.name}</h3>
-      <p>Total: R$ {event.total_amount}</p>
+      <p>Total: R$ {event.totalAmount}</p>
       <p>Membros: {event.members.length}</p>
       <p>Status: <span className="font-semibold">{event.status}</span></p>
     </div>
