@@ -32,45 +32,54 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.finishEvent = exports.createEvent = exports.getEventsByUserId = exports.getEventById = void 0;
 const db_1 = require("../utils/db");
 const uuid_1 = require("uuid");
 const admin = __importStar(require("firebase-admin"));
 // const { v4: uuidv4 } = require('uuid')
-const getEventById = async (req, res) => {
+const getEventById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { eventId } = req.params;
         if (!eventId) {
             return res.status(400).json({ error: 'Event ID is required.' });
         }
         const eventRef = db_1.db.collection('events').doc(eventId);
-        const doc = await eventRef.get();
+        const doc = yield eventRef.get();
         if (!doc.exists) {
             return res.status(404).json({ error: 'Event not found.' });
         }
-        res.status(200).json({ id: doc.id, ...doc.data() });
+        res.status(200).json(Object.assign({ id: doc.id }, doc.data()));
     }
     catch (error) {
         console.error('Error getting event by ID:', error);
         res.status(500).json({ error: 'Failed to retrieve event.' });
     }
-};
+});
 exports.getEventById = getEventById;
-const getEventsByUserId = async (req, res) => {
+const getEventsByUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
         if (!userId) {
             return res.status(400).json({ error: 'User ID (public key) is required.' });
         }
         const eventsRef = db_1.db.collection('events');
-        const snapshot = await eventsRef.where('members', 'array-contains', userId).get();
+        const snapshot = yield eventsRef.where('members', 'array-contains', userId).get();
         if (snapshot.empty) {
             return res.status(200).json();
         }
         let userEvents;
         snapshot.forEach(doc => {
-            userEvents.push({ id: doc.id, ...doc.data() });
+            userEvents.push(Object.assign({ id: doc.id }, doc.data()));
         });
         res.status(200).json(userEvents);
     }
@@ -78,9 +87,9 @@ const getEventsByUserId = async (req, res) => {
         console.error('Error getting events by user ID:', error);
         res.status(500).json({ error: 'Failed to retrieve events.' });
     }
-};
+});
 exports.getEventsByUserId = getEventsByUserId;
-const createEvent = async (req, res) => {
+const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, members, origin } = req.body;
         if (!name || !members || !Array.isArray(members) || members.length === 0 || !origin) {
@@ -114,25 +123,25 @@ const createEvent = async (req, res) => {
                 });
             }
         });
-        await batch.commit();
+        yield batch.commit();
         res.status(201).json({ message: 'Event created and notifications sent successfully', eventId: eventId });
     }
     catch (error) {
         console.error('Error creating event:', error);
         res.status(500).json({ error: 'Failed to create event.' });
     }
-};
+});
 exports.createEvent = createEvent;
-const finishEvent = async (req, res) => {
+const finishEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { eventId } = req.params;
     if (!eventId) {
         res.status(400).json({ error: 'Event ID is required.' });
         return;
     }
     try {
-        await db_1.db.runTransaction(async (transaction) => {
+        yield db_1.db.runTransaction((transaction) => __awaiter(void 0, void 0, void 0, function* () {
             const eventRef = db_1.db.collection('events').doc(eventId);
-            const eventDoc = await transaction.get(eventRef);
+            const eventDoc = yield transaction.get(eventRef);
             if (!eventDoc.exists) {
                 throw new Error('Event not found.');
             }
@@ -147,7 +156,7 @@ const finishEvent = async (req, res) => {
                 return;
             }
             const expenseRefs = expenseIds.map((id) => db_1.db.collection('expenses').doc(id));
-            const expenseDocs = await transaction.getAll(...expenseRefs);
+            const expenseDocs = yield transaction.getAll(...expenseRefs);
             const balances = {};
             members.forEach((member) => (balances[member] = 0));
             let totalEventCost = 0;
@@ -187,7 +196,7 @@ const finishEvent = async (req, res) => {
                 status: 'FINISHED',
                 finalBalances: balances,
             });
-        });
+        }));
         res.status(200).json({
             message: `Event ${eventId} has been successfully finished.`,
         });
@@ -204,6 +213,6 @@ const finishEvent = async (req, res) => {
             res.status(500).json({ error: 'An unexpected error occurred.' });
         }
     }
-};
+});
 exports.finishEvent = finishEvent;
 //# sourceMappingURL=service.event.js.map

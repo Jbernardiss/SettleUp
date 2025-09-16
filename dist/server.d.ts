@@ -1,4 +1,2 @@
-import { type Express } from "express";
-declare const server: Express;
-export default server;
+export {};
 //# sourceMappingURL=server.d.ts.map

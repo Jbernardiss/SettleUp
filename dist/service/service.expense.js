@@ -32,12 +32,22 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createExpense = void 0;
 const db_1 = require("../utils/db");
 const StellarSdk = __importStar(require("stellar-sdk"));
 const admin = __importStar(require("firebase-admin"));
-const createExpense = async (req, res) => {
+const createExpense = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { eventId, expenseId } = req.body;
         if (!eventId || !expenseId) {
@@ -46,31 +56,33 @@ const createExpense = async (req, res) => {
         const eventRef = db_1.db.collection('events').doc(eventId);
         const expenseRef = db_1.db.collection('expenses').doc(expenseId);
         const notificationsRef = db_1.db.collection('notifications');
-        const eventDoc = await eventRef.get();
+        const eventDoc = yield eventRef.get();
         if (!eventDoc.exists) {
             return res.status(404).json({ error: 'Event not found.' });
         }
-        const members = eventDoc.data()?.members;
+        const members = (_a = eventDoc.data()) === null || _a === void 0 ? void 0 : _a.members;
         const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
-        async function getTransactionData(expense) {
-            try {
-                const tx = await server.transactions().transaction(expense).call();
-                // console.log("Transaction Data:", tx);
-                console.log(`Source Account: ${tx.source_account}`);
-                let amount;
-                const { records: operations } = await tx.operations();
-                for (const op of operations) {
-                    if (op.type === 'payment' && op.asset_type === 'native') {
-                        amount = op.amount;
+        function getTransactionData(expense) {
+            return __awaiter(this, void 0, void 0, function* () {
+                try {
+                    const tx = yield server.transactions().transaction(expense).call();
+                    // console.log("Transaction Data:", tx);
+                    console.log(`Source Account: ${tx.source_account}`);
+                    let amount;
+                    const { records: operations } = yield tx.operations();
+                    for (const op of operations) {
+                        if (op.type === 'payment' && op.asset_type === 'native') {
+                            amount = op.amount;
+                        }
                     }
+                    return [tx.source_account, amount];
                 }
-                return [tx.source_account, amount];
-            }
-            catch (error) {
-                console.error("Error fetching transaction:", error);
-            }
+                catch (error) {
+                    console.error("Error fetching transaction:", error);
+                }
+            });
         }
-        let [origin, amount] = await getTransactionData(expenseId);
+        let [origin, amount] = yield getTransactionData(expenseId);
         const batch = db_1.db.batch();
         batch.set(expenseRef, {
             amount: parseFloat(amount),
@@ -92,13 +104,13 @@ const createExpense = async (req, res) => {
                 });
             }
         });
-        await batch.commit();
+        yield batch.commit();
         res.status(201).json({ message: 'Expense created and notifications sent successfully', expenseId: expenseId });
     }
     catch (error) {
         console.error('Error creating expense:', error);
         res.status(500).json({ error: 'Failed to create expense.' });
     }
-};
+});
 exports.createExpense = createExpense;
 //# sourceMappingURL=service.expense.js.map

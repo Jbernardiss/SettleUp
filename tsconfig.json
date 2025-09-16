@@ -12,9 +12,10 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "commonjs",
-    "target": "es2021",
+    "target": "es6",
     "types": [],
     "esModuleInterop": true,
+    "skipLibCheck": true,
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -46,5 +47,6 @@
     // "moduleDetection": "force",
     // "skipLibCheck": true,
   },
-  "include": ["src"/*, "tests"*/],
+  "include": ["src/**/*"],              /* Include all files in the src directory */
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }

@@ -32,24 +32,33 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.answerExpenseNotification = exports.answerEventNotification = exports.getNotificationsByUserId = void 0;
 const db_1 = require("../utils/db");
 const admin = __importStar(require("firebase-admin"));
-const getNotificationsByUserId = async (req, res) => {
+const getNotificationsByUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.params;
         if (!userId) {
             return res.status(400).json({ error: 'User ID (public key) is required.' });
         }
         const notificationsRef = db_1.db.collection('notifications');
-        const snapshot = await notificationsRef.where('destination', '==', userId).get();
+        const snapshot = yield notificationsRef.where('destination', '==', userId).get();
         if (snapshot.empty) {
             return res.status(200).json();
         }
         let userNotifications;
         snapshot.forEach(doc => {
-            userNotifications.push({ id: doc.id, ...doc.data() });
+            userNotifications.push(Object.assign({ id: doc.id }, doc.data()));
         });
         res.status(200).json(userNotifications);
     }
@@ -57,9 +66,9 @@ const getNotificationsByUserId = async (req, res) => {
         console.error('Error getting notifications by user ID:', error);
         res.status(500).json({ error: 'Failed to retrieve notifications.' });
     }
-};
+});
 exports.getNotificationsByUserId = getNotificationsByUserId;
-const answerEventNotification = async (req, res) => {
+const answerEventNotification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { eventId } = req.params;
         const { publicKey, status } = req.body;
@@ -68,13 +77,13 @@ const answerEventNotification = async (req, res) => {
         }
         const eventRef = db_1.db.collection('events').doc(eventId);
         if (status == "ACCEPTED")
-            await eventRef.update({
+            yield eventRef.update({
                 members: admin.firestore.FieldValue.arrayUnion(publicKey)
             });
-        const doc = await eventRef.get();
+        const doc = yield eventRef.get();
         let { nInvitations, nResponses } = doc.data();
         if (nInvitations == nResponses)
-            await eventRef.update({
+            yield eventRef.update({
                 status: "ONGOING"
             });
         res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
@@ -83,9 +92,10 @@ const answerEventNotification = async (req, res) => {
         console.error('Error adding user to event:', error);
         res.status(500).json({ error: 'Failed to add user.' });
     }
-};
+});
 exports.answerEventNotification = answerEventNotification;
-const answerExpenseNotification = async (req, res) => {
+const answerExpenseNotification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { expenseId, status } = req.body;
         if (!expenseId || !status) {
@@ -96,23 +106,23 @@ const answerExpenseNotification = async (req, res) => {
         }
         const expenseRef = db_1.db.collection('expenses').doc(expenseId);
         if (status === "ACCEPTED") {
-            await expenseRef.update({
+            yield expenseRef.update({
                 nAccepted: admin.firestore.FieldValue.increment(1)
             });
-            const updatedExpenseDoc = await expenseRef.get();
+            const updatedExpenseDoc = yield expenseRef.get();
             if (!updatedExpenseDoc.exists) {
                 return res.status(404).json({ error: 'Expense document not found after update.' });
             }
             const { nAccepted, event: eventId } = updatedExpenseDoc.data();
             const eventRef = db_1.db.collection('events').doc(eventId);
-            const eventDoc = await eventRef.get();
+            const eventDoc = yield eventRef.get();
             if (!eventDoc.exists) {
                 return res.status(404).json({ error: 'Associated event not found.' });
             }
-            const members = eventDoc.data()?.members;
+            const members = (_a = eventDoc.data()) === null || _a === void 0 ? void 0 : _a.members;
             const requiredAcceptances = Math.floor(members.length / 2);
             if (nAccepted > requiredAcceptances) {
-                await eventRef.update({
+                yield eventRef.update({
                     expenses: admin.firestore.FieldValue.arrayUnion(expenseId)
                 });
             }
@@ -123,6 +133,6 @@ const answerExpenseNotification = async (req, res) => {
         console.error('Error answering expense notification:', error);
         res.status(500).json({ error: 'Failed to process expense response.' });
     }
-};
+});
 exports.answerExpenseNotification = answerExpenseNotification;
 //# sourceMappingURL=service.notification.js.map
