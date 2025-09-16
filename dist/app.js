@@ -10,7 +10,6 @@ const router_notifications_1 = __importDefault(require("./routers/router.notific
 const app = (0, express_1.Router)();
 app.get('/hello', (req, res) => res.send('Sertaneca Compagode'));
 app.use('/events', router_events_1.default);
-// app.use('/app', appRouter);
 app.use('/expenses', router_expenses_1.default);
 app.use('/notifications', router_notifications_1.default);
 exports.default = app;
