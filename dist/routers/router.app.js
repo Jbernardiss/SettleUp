@@ -40,11 +40,9 @@ const express_1 = __importStar(require("express"));
 const path_1 = __importDefault(require("path"));
 const appRouter = (0, express_1.Router)();
 appRouter.get('/hello', (req, res) => res.send('asdfdasf'));
-// appRouter.use((express.static(path.join(__dirname, '../../SettleUpFrontend/dist/assets'))))
 appRouter.use(express_1.default.static(path_1.default.join(__dirname, '../../SettleUpFrontend/dist')));
 // appRouter.get('/', (req, res) => {
-//     console.log(path.join(__dirname, '../../SettleUpFrontend/dist/index.html'))
-//     res.sendFile(path.join(__dirname, '../../SettleUpFrontend/dist/index.html'))
-// })
+//     res.sendFile(path.join(__dirname, '../../SettleUpFrontend/distindex.html'));
+// });
 exports.default = appRouter;
 //# sourceMappingURL=router.app.js.map

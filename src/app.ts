@@ -8,12 +8,17 @@ import path from "path";
 
 const app: Router = Router();
 
-app.use('/', appRouter);
 app.get('/hello', (req, res) => res.send('Sertaneca Compagode'))
 app.use('/assets', express.static(path.join(__dirname, '../SettleUpFrontend/dist/assets')));
 app.use('/events', eventsRouter);
 app.use('/expenses', expensesRouter);
 app.use('/notifications', notificationsRouter);
+app.use('/', appRouter)
+app.use('/home', appRouter)
+app.use('/notificacoes', appRouter)
+app.use('/carteira', appRouter)
+app.use('/qrcode', appRouter)
+app.use('/invite-qr', appRouter)
 
 export default app;
 

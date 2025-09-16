@@ -1,1 +1,1 @@
-{"version":3,"file":"model.expense.d.ts","sourceRoot":"","sources":["../../src/models/model.expense.ts"],"names":[],"mappings":"AAAA,KAAK,OAAO,GAAG;IACX,SAAS,EAAE,MAAM,CAAC;IAClB,KAAK,EAAE,MAAM,CAAA;CAChB,CAAA;AAED,OAAO,EAAE,OAAO,EAAE,CAAC"}
+{"version":3,"file":"model.expense.d.ts","sourceRoot":"","sources":["../../src/models/model.expense.ts"],"names":[],"mappings":"AAAA,KAAK,OAAO,GAAG;IACX,EAAE,EAAE,MAAM,CAAC;IACX,SAAS,EAAE,MAAM,CAAC;IAClB,KAAK,EAAE,MAAM,CAAA;IACb,MAAM,EAAE,MAAM,CAAC;IACf,MAAM,EAAE,MAAM,CAAC;CAClB,CAAA;AAED,OAAO,EAAE,OAAO,EAAE,CAAC"}

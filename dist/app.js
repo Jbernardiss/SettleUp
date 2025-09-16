@@ -43,11 +43,16 @@ const router_expenses_1 = __importDefault(require("./routers/router.expenses"));
 const router_notifications_1 = __importDefault(require("./routers/router.notifications"));
 const path_1 = __importDefault(require("path"));
 const app = (0, express_1.Router)();
-app.use(express_1.default.static(path_1.default.join(__dirname, '/SettleUpFrontend/dist')));
 app.get('/hello', (req, res) => res.send('Sertaneca Compagode'));
-app.use('/app', router_app_1.default);
+app.use('/assets', express_1.default.static(path_1.default.join(__dirname, '../SettleUpFrontend/dist/assets')));
 app.use('/events', router_events_1.default);
 app.use('/expenses', router_expenses_1.default);
 app.use('/notifications', router_notifications_1.default);
+app.use('/', router_app_1.default);
+app.use('/home', router_app_1.default);
+app.use('/notificacoes', router_app_1.default);
+app.use('/carteira', router_app_1.default);
+app.use('/qrcode', router_app_1.default);
+app.use('/invite-qr', router_app_1.default);
 exports.default = app;
 //# sourceMappingURL=app.js.map

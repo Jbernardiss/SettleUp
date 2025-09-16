@@ -75,9 +75,9 @@ const getEventsByUserId = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const eventsRef = db_1.db.collection('events');
         const snapshot = yield eventsRef.where('members', 'array-contains', userId).get();
         if (snapshot.empty) {
-            return res.status(200).json();
+            return res.status(200).json([]);
         }
-        let userEvents;
+        const userEvents = [];
         snapshot.forEach(doc => {
             userEvents.push(Object.assign({ id: doc.id }, doc.data()));
         });
@@ -97,7 +97,6 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
         const eventId = (0, uuid_1.v4)();
         const eventRef = db_1.db.collection('events').doc(eventId);
-        const notificationsRef = db_1.db.collection('notifications');
         const batch = db_1.db.batch();
         batch.set(eventRef, {
             name: name,
@@ -107,21 +106,6 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             members: [],
             expenses: [],
             status: 'PENDING'
-        });
-        members.forEach((memberPublicKey) => {
-            if (memberPublicKey !== origin) {
-                const notificationRef = notificationsRef.doc();
-                batch.set(notificationRef, {
-                    destination: memberPublicKey,
-                    origin: origin,
-                    eventId: eventId,
-                    expenseId: null,
-                    type: 'EVENT',
-                    status: 'PENDING',
-                    read: false,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                });
-            }
         });
         yield batch.commit();
         res.status(201).json({ message: 'Event created and notifications sent successfully', eventId: eventId });
@@ -169,12 +153,8 @@ const finishEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             members.forEach((member) => {
                 balances[member] -= sharePerMember;
             });
-            const debtors = members
-                .filter((m) => balances[m] < 0)
-                .map((m) => ({ id: m, amount: Math.abs(balances[m]) }));
-            const creditors = members
-                .filter((m) => balances[m] > 0)
-                .map((m) => ({ id: m, amount: balances[m] }));
+            const debtors = members.filter((m) => balances[m] < 0).map((m) => ({ id: m, amount: Math.abs(balances[m]) }));
+            const creditors = members.filter((m) => balances[m] > 0).map((m) => ({ id: m, amount: balances[m] }));
             let debtorIndex = 0;
             let creditorIndex = 0;
             const epsilon = 1e-5;
@@ -191,19 +171,15 @@ const finishEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                     debtor.amount -= transferAmount;
                     creditor.amount -= transferAmount;
                 }
-                if (debtor.amount < epsilon) {
+                if (debtor.amount < epsilon)
                     debtorIndex++;
-                }
-                if (creditor.amount < epsilon) {
+                if (creditor.amount < epsilon)
                     creditorIndex++;
-                }
             }
             for (const memberId of members) {
-                const finalBalance = balances[memberId];
                 const notificationRef = db_1.db.collection('notifications').doc();
-                const message = finalBalance >= 0
-                    ? `Event settled! You get back $${finalBalance.toFixed(2)}.`
-                    : `Event settled! You owe $${Math.abs(finalBalance).toFixed(2)}.`;
+                const userSpecificTransactions = settlementTransactions.filter((t) => t.from === memberId || t.to === memberId);
+                const finalBalance = balances[memberId];
                 const notificationPayload = {
                     destination: memberId,
                     eventId: eventId,
@@ -211,8 +187,8 @@ const finishEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                     origin: 'system',
                     status: 'ACCEPTED',
                     type: 'FINAL',
-                    message: message,
                     amount: finalBalance,
+                    settlement: userSpecificTransactions,
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 };
                 transaction.set(notificationRef, notificationPayload);
@@ -220,6 +196,7 @@ const finishEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             transaction.update(eventRef, {
                 status: 'FINISHED',
                 finalBalances: balances,
+                settlementTransactions: settlementTransactions,
             });
         }));
         res.status(200).json({

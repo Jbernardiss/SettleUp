@@ -42,7 +42,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.answerExpenseNotification = exports.answerEventNotification = exports.getNotificationsByUserId = void 0;
+exports.answerExpenseNotification = exports.getNotificationsByUserId = void 0;
 const db_1 = require("../utils/db");
 const admin = __importStar(require("firebase-admin"));
 const getNotificationsByUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -68,32 +68,6 @@ const getNotificationsByUserId = (req, res) => __awaiter(void 0, void 0, void 0,
     }
 });
 exports.getNotificationsByUserId = getNotificationsByUserId;
-const answerEventNotification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { eventId } = req.params;
-        const { publicKey, status } = req.body;
-        if (!publicKey) {
-            return res.status(400).json({ error: 'User public key is required.' });
-        }
-        const eventRef = db_1.db.collection('events').doc(eventId);
-        if (status == "ACCEPTED")
-            yield eventRef.update({
-                members: admin.firestore.FieldValue.arrayUnion(publicKey)
-            });
-        const doc = yield eventRef.get();
-        let { nInvitations, nResponses } = doc.data();
-        if (nInvitations == nResponses)
-            yield eventRef.update({
-                status: "ONGOING"
-            });
-        res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
-    }
-    catch (error) {
-        console.error('Error adding user to event:', error);
-        res.status(500).json({ error: 'Failed to add user.' });
-    }
-});
-exports.answerEventNotification = answerEventNotification;
 const answerExpenseNotification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -113,7 +87,7 @@ const answerExpenseNotification = (req, res) => __awaiter(void 0, void 0, void 0
             if (!updatedExpenseDoc.exists) {
                 return res.status(404).json({ error: 'Expense document not found after update.' });
             }
-            const { nAccepted, event: eventId } = updatedExpenseDoc.data();
+            const { nAccepted, event: eventId, amount } = updatedExpenseDoc.data();
             const eventRef = db_1.db.collection('events').doc(eventId);
             const eventDoc = yield eventRef.get();
             if (!eventDoc.exists) {
@@ -123,7 +97,8 @@ const answerExpenseNotification = (req, res) => __awaiter(void 0, void 0, void 0
             const requiredAcceptances = Math.floor(members.length / 2);
             if (nAccepted > requiredAcceptances) {
                 yield eventRef.update({
-                    expenses: admin.firestore.FieldValue.arrayUnion(expenseId)
+                    expenses: admin.firestore.FieldValue.arrayUnion(expenseId),
+                    totalAmount: admin.firestore.FieldValue.increment(amount)
                 });
             }
         }
