@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, EventsCARD } from "../components/index";
-import { useFreighterTestWallet } from "../hooks/useFreighterTestWallet";
 import type { EventData } from "../hooks/useEvents";
+import { useFreighterWallet } from "../contexts/FreighterWalletContext";
 
 // Dados mocados para os eventos (do primeiro código)
 const mockEvents: EventData[] = [
@@ -49,7 +49,7 @@ export const Home: React.FC = () => {
     disconnect,
     refresh,
     makeTransaction,
-  } = useFreighterTestWallet();
+  } = useFreighterWallet();
 
   // State do formulário de transação
   const [destination, setDestination] = useState("");
