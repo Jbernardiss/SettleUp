@@ -1,43 +1,54 @@
 .container {
-    max-width: 428px;
-    margin: 0 auto;
+    width: 100%;
     min-height: 100vh;
     background: #fff;
-    position: relative;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
-  }
-  
-  .header {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    background: #fff;
-    border-bottom: 1px solid #f0f0f0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+    flex-direction: column;
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: 24px;
+  padding-bottom: 40px;
+  max-width: 428px; /* Mantém o conteúdo centralizado e legível */
+  width: 100%;
+  margin: 0 auto;
+}
   
-  .header h1 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin: 0;
-  }
-  
-  .backBtn {
-    background: none;
-    border: none;
-    padding: 8px;
-    cursor: pointer;
-    border-radius: 8px;
-    color: #666;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr; /* Layout de 3 colunas */
+  align-items: center;
+  padding: 20px 24px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  text-align: center; /* Centraliza o texto do título */
+  grid-column: 2; /* Coloca na coluna do meio */
+}
+
+/* ... .backBtn com ajustes de grid ... */
+
+.inputGroup input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: #fafafa;
+  box-sizing: border-box;
+  color: #000; /* Garante que o texto digitado seja preto */
+}
   
   .backBtn:hover {
     background: #f5f5f5;

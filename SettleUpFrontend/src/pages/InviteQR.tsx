@@ -138,8 +138,7 @@ const InviteQR: React.FC = () => {
         <button className={styles.backBtn} onClick={goToEvent} type="button">
           <ArrowLeft size={24} />
         </button>
-        <h1>Convitar Participantes</h1>
-        <div></div>
+        <h1>Convidar Participantes</h1>
       </header>
 
       <main className={styles.mainContent}>

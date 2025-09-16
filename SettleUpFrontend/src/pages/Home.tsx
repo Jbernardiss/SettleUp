@@ -111,9 +111,9 @@ export const Home: React.FC = () => {
               )}
 
               {nativeBalance && (
-                <div className={styles.balance}>
-                  <strong>Balance (XLM):</strong> {nativeBalance}
-                </div>
+                  <div className={styles.balance}>
+                      <strong>Balance (XLM):</strong> {parseInt(nativeBalance, 10).toLocaleString()}
+                  </div>
               )}
 
               <div className={styles.transactionSection}>

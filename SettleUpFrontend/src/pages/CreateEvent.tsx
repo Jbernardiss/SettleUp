@@ -96,7 +96,6 @@ const CreateEvent: React.FC = () => {
           <ArrowLeft size={24} />
         </button>
         <h1>Criar Evento</h1>
-        <div></div>
       </header>
 
       <main className={styles.mainContent}>
