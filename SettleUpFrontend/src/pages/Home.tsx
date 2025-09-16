@@ -87,7 +87,7 @@ export const Home: React.FC = () => {
       )}
 
       {/* MUDANÇA: O título "SettleUp" principal agora é apenas um título */}
-      <h1 className={styles.title}>Dashboard</h1> 
+      <h1 className={styles.title}>SettleUp</h1> 
 
       {isInstalled && !isPermitted && (
         <button
@@ -117,9 +117,9 @@ export const Home: React.FC = () => {
               )}
 
               {nativeBalance && (
-                <div className={styles.balance}>
-                  <strong>Balance (XLM):</strong> {nativeBalance}
-                </div>
+                  <div className={styles.balance}>
+                      <strong>Balance (XLM):</strong> {parseInt(nativeBalance, 10).toLocaleString()}
+                  </div>
               )}
 
               <div className={styles.transactionSection}>

@@ -10,7 +10,7 @@ export const EventsCARD: React.FC<EventsCARDProps> = ({ event }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/event-detail/${event.id}`);
+    navigate(`/event-details/${event.id}`);
   };
 
   return (

@@ -45,7 +45,7 @@ const CreateEvent: React.FC = () => {
 
     try {
       // Create event via API
-      const { eventId } = await postEvent(eventName.trim(), publicKey ?? '');
+      const { eventId } = await postEvent(eventName.trim(), publicKey ?? "");
 
       const eventData: EventData = {
         id: eventId,
@@ -56,8 +56,11 @@ const CreateEvent: React.FC = () => {
       };
 
       saveEventToStorage(eventData);
-    } catch (err) {
-      setError("Erro ao criar evento. Tente novamente.");
+      navigate(
+        `/invite-qr?eventId=${eventData.id}&eventName=${encodeURIComponent(
+          eventData.name
+        )}`
+      );
     } finally {
       setIsLoading(false);
     }
