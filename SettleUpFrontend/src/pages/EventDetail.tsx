@@ -16,7 +16,7 @@ export const EventDetail: React.FC = () => {
   const [isFinishing, setIsFinishing] = useState(false);
 
   const handleFinishEvent = async () => {
-    if (!id) return;
+    if (!eventId) return;
 
     const confirmation = window.confirm(
       'Are you sure you want to finish and settle this event? This action cannot be undone.'
@@ -25,7 +25,7 @@ export const EventDetail: React.FC = () => {
 
     setIsFinishing(true);
     try {
-      const response = await fetch(`/api/events/${id}/finish`, { method: 'POST' });
+      const response = await fetch(`/api/events/${eventId}/finish`, { method: 'POST' });
       const result = await response.json();
 
       if (!response.ok) {
