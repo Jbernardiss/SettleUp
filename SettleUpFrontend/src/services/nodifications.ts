@@ -10,7 +10,9 @@ interface Notification {
 
 export const getAllNotifications = async (userId: string): Promise<Notification[]> => {
   try {
-    const response = await axios.get<Notification[]>(`/${userId}/notifications/get`);
+    const response = await axios.get<Notification[]>(
+      `/notifications/${userId}/get`
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching notifications:", error);
