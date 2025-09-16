@@ -40,12 +40,14 @@ export const getEventsByUserId = async (req: Request, res: Response) => {
     const snapshot = await eventsRef.where('members', 'array-contains', userId).get();
 
     if (snapshot.empty) {
-      return res.status(200).json(); 
+      // CORREÇÃO 1: Garante que um array vazio seja retornado se não houver eventos.
+      return res.status(200).json([]); 
     }
 
-    let userEvents: any; 
+    // CORREÇÃO 2: Inicializa 'userEvents' como um array vazio.
+    const userEvents: any[] = []; 
     snapshot.forEach(doc => {
-      userEvents.push({ id: doc.id,...doc.data() });
+      userEvents.push({ id: doc.id, ...doc.data() });
     });
 
     res.status(200).json(userEvents);

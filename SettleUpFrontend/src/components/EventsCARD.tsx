@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { EventData } from '../hooks/useEvents';
+import { type Event } from '../types/events'
 
 type EventsCARDProps = {
-  event: EventData;
+  event: Event & { id: string }; // Adicionando 'id' ao tipo do evento
 };
 
 export const EventsCARD: React.FC<EventsCARDProps> = ({ event }) => {
@@ -14,10 +14,9 @@ export const EventsCARD: React.FC<EventsCARDProps> = ({ event }) => {
   };
 
   return (
-    // Adicionado cor de fundo e borda para o card individual
     <div
       onClick={handleClick}
-      // className="rounded-lg border border-pink-500 bg-gray-800 p-4 shadow-md cursor-pointer hover:shadow-lg hover:bg-gray-700 transition-all"
+      className="rounded-lg border border-pink-500 bg-gray-800 p-4 shadow-md cursor-pointer hover:shadow-lg hover:bg-gray-700 transition-all"
     >
       <h3 className="text-xl font-bold">{event.name}</h3>
       <p>Total: R$ {event.totalAmount}</p>

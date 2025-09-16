@@ -59,3 +59,17 @@ export interface ApiResponse<T = any> {
   error?: string;
   message?: string;
 }
+
+export type EventStatus = 'PENDING' | 'FINISHED' | 'ONGOING';
+
+export type Event = {
+    id: string;
+    name: string;
+    members: string[];
+    expenses: string[];
+    totalAmount: number;
+    nInvitations: number;
+    nResponses: number;
+    status: EventStatus;
+}
+

@@ -74,3 +74,29 @@ export const useEvents = (eventId: string | undefined) => {
   return { event, expenses, isLoading, error, refresh: fetchEventData };
 };
 
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { type Event } from '../types/events';
+
+// A função para buscar os eventos agora aceita um userId
+export const fetchEventsByUserId = async (userId: string | undefined): Promise<Event[]> => {
+  if (!userId) {
+    // Retorna um array vazio se não houver userId, para evitar erros.
+    return [];
+  }
+  // A URL agora aponta para o endpoint correto da sua API
+  const { data } = await axios.get(`/api/events/${userId}/get_user_events`);
+  return data || []; // Retorna um array vazio se a resposta for nula
+};
+
+// O hook agora depende do userId para refazer a busca quando ele mudar
+export const useUserEvents = (userId: string | undefined) => {
+  return useQuery({
+    // A queryKey inclui o userId para que o React Query armazene os dados corretamente
+    queryKey: ['events', userId],
+    // A queryFn agora chama a função com o userId
+    queryFn: () => fetchEventsByUserId(userId),
+    // A query só será executada se o userId não for nulo
+    enabled: !!userId,
+  });
+};
