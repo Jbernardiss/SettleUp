@@ -4,6 +4,7 @@ type ButtonProps = {
   onClick: () => void;
   text: string;
   variant?: "primary" | "secondary" | "tertiary";
+  disabled: boolean;
 };
 
 export const Button: React.FC<ButtonProps> = ({ onClick, text, variant }) => {

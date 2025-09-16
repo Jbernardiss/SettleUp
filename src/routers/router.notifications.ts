@@ -7,10 +7,10 @@ import {
 
 const notificationsRouter = Router();
 
-notificationsRouter.get("/:userId/get_notifications", getNotificationsByUserId)
+notificationsRouter.get("/:userId/notifications/get", getNotificationsByUserId)
 
-notificationsRouter.post("/:eventId/answer_event_notification", answerEventNotification)
+notificationsRouter.post("/:eventId/notifications/answer_event", answerEventNotification)
 
-notificationsRouter.post("/:eventId/answer_expense_notification", answerExpenseNotification);
+notificationsRouter.post("/:eventId/notifications/answer_expense", answerExpenseNotification);
 
 export default notificationsRouter;

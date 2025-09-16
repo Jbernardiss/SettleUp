@@ -1,10 +1,13 @@
 import { Router } from "express";
 import { 
-  createExpense
+  createExpense,
+  getExpenseById
 } from "../service/service.expense"; 
 
 const expensesRouter = Router();
 
-expensesRouter.get("/create_expense", createExpense)
+expensesRouter.get("/expenses/:expenseId", getExpenseById);
+
+expensesRouter.post("/expenses/create", createExpense);
 
 export default expensesRouter;

@@ -3,6 +3,28 @@ import { db } from '../utils/db';
 import * as StellarSdk from 'stellar-sdk'; 
 import * as admin from 'firebase-admin'; 
 
+export const getExpenseById = async (req: Request, res: Response) => {
+  try {
+    const { expenseId } = req.params;
+
+    if (!expenseId) {
+      return res.status(400).json({ error: 'Expense ID (transaction hash) is required.' });
+    }
+
+    const expenseRef = db.collection('expenses').doc(expenseId);
+    const doc = await expenseRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Expense not found.' });
+    }
+
+    res.status(200).json({ id: doc.id,...doc.data() });
+  } catch (error) {
+    console.error('Error getting expense by ID:', error);
+    res.status(500).json({ error: 'Failed to retrieve expense.' });
+  }
+};
+
 export const createExpense = async (req: Request, res: Response) => {
   try {
     const { eventId, expenseId } = req.body;

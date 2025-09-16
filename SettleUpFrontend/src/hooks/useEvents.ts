@@ -1,28 +1,75 @@
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { useState, useEffect, useCallback } from 'react';
 
-// Definindo o tipo para o status do evento como uma união de strings
-export type EventStatus = 'OPEN' | 'CLOSED' | 'PENDING';
+export interface SettlementTransaction {
+  from: string; 
+  to: string; 
+  amount: number;
+}
 
-export type EventData = {
+export interface Expense {
+  id: string;
+  description: string;
+  amount: number;
+  origin: string; 
+  createdAt: any; 
+}
+
+export interface EventData {
   id: string;
   name: string;
   members: string[];
   expenses: string[];
-  total_amount: string;
-  status: EventStatus; // Usando o tipo de união de strings
+  totalAmount: number;
+  status: 'PENDING' | 'ACTIVE' | 'FINISHED'; 
+  finalBalances?: { [memberId: string]: number }; 
+}
+
+const fetchExpenseById = async (expenseId: string): Promise<Expense> => {
+  const response = await fetch(`/api/expenses/${expenseId}`); 
+  if (!response.ok) {
+    throw new Error(`Failed to fetch expense ${expenseId}`);
+  }
+  return response.json();
 };
 
-// Função para buscar os eventos da API
-const fetchEvents = async (): Promise<EventData[]> => {
-  // Substitua pela URL real do seu endpoint
-  const { data } = await axios.get('https://api.example.com/events');
-  return data;
-};
+export const useEventWithExpenses = (eventId: string | undefined) => {
+  const [event, setEvent] = useState<EventData | null>(null);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-export const useEvents = () => {
-  return useQuery({
-    queryKey: ['events'],
-    queryFn: fetchEvents,
-  });
+  const fetchEventData = useCallback(async () => {
+    if (!eventId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const eventResponse = await fetch(`/api/events/${eventId}/get_event`);
+      if (!eventResponse.ok) {
+        throw new Error('Event not found.');
+      }
+      const eventData: EventData = await eventResponse.json();
+      setEvent(eventData);
+
+      if (eventData.expenses && eventData.expenses.length > 0) {
+        const expensePromises = eventData.expenses.map(fetchExpenseById);
+        const resolvedExpenses = await Promise.all(expensePromises);
+        setExpenses(resolvedExpenses);
+      } else {
+        setExpenses([]); 
+      }
+
+    } catch (err: any) {
+      setError(err.message || 'An unknown error occurred.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [eventId]);
+
+  useEffect(() => {
+    fetchEventData();
+  }, [fetchEventData]);
+
+  return { event, expenses, isLoading, error, refresh: fetchEventData };
 };

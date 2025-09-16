@@ -113,6 +113,8 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
   }
 
   try {
+    const settlementTransactions: { from: string, to: string, amount: number }[] = [];
+
     await db.runTransaction(async (transaction) => {
       const eventRef = db.collection('events').doc(eventId);
       const eventDoc = await transaction.get(eventRef);
@@ -128,24 +130,16 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
       }
 
       const { members, expenses: expenseIds } = event;
-      const memberCount = members.length;
+      const balances: { [memberId: string]: number } = {};
+      members.forEach((member) => (balances[member] = 0));
+      let totalEventCost = 0;
 
-      if (memberCount === 0) {
-        transaction.update(eventRef, { status: 'FINISHED' as EventStatus });
-        return;
-      }
-      
       const expenseRefs = expenseIds.map((id) => db.collection('expenses').doc(id));
       const expenseDocs = await transaction.getAll(...expenseRefs);
 
-      const balances: { [memberId: string]: number } = {};
-      members.forEach((member) => (balances[member] = 0));
-
-      let totalEventCost = 0;
       for (const doc of expenseDocs) {
         if (doc.exists) {
           const expense = doc.data() as { amount: number; origin: string; };
-          
           if (expense && typeof expense.amount === 'number' && expense.origin) {
             balances[expense.origin] += expense.amount;
             totalEventCost += expense.amount;
@@ -153,13 +147,48 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
         }
       }
 
-      const sharePerMember = totalEventCost / memberCount;
-
+      const sharePerMember = totalEventCost / members.length;
       members.forEach((member) => {
         balances[member] -= sharePerMember;
       });
 
-      for (const memberId of members) {
+      const debtors = members
+        .filter((m) => balances[m] < 0)
+        .map((m) => ({ id: m, amount: Math.abs(balances[m]) }));
+
+      const creditors = members
+        .filter((m) => balances[m] > 0)
+        .map((m) => ({ id: m, amount: balances[m] }));
+        
+      let debtorIndex = 0;
+      let creditorIndex = 0;
+      const epsilon = 1e-5; 
+
+      while (debtorIndex < debtors.length && creditorIndex < creditors.length) {
+        const debtor = debtors[debtorIndex];
+        const creditor = creditors[creditorIndex];
+        const transferAmount = Math.min(debtor.amount, creditor.amount);
+
+        if (transferAmount > epsilon) {
+            settlementTransactions.push({
+                from: debtor.id,
+                to: creditor.id,
+                amount: transferAmount,
+            });
+
+            debtor.amount -= transferAmount;
+            creditor.amount -= transferAmount;
+        }
+
+        if (debtor.amount < epsilon) {
+          debtorIndex++;
+        }
+        if (creditor.amount < epsilon) {
+          creditorIndex++;
+        }
+      }
+
+     for (const memberId of members) {
         const finalBalance = balances[memberId];
         const notificationRef = db.collection('notifications').doc();
         
@@ -190,6 +219,7 @@ export const finishEvent = async (req: Request, res: Response): Promise<void> =>
 
     res.status(200).json({
       message: `Event ${eventId} has been successfully finished.`,
+      settlement: settlementTransactions, 
     });
 
   } catch (error: any) {
