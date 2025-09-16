@@ -11,24 +11,24 @@ const mockEvents: EventData[] = [
       name: 'Churrasco de Fim de Ano',
       members: ['Alice', 'Beto', 'Carla'],
       expenses: [],
-      total_amount: '350.00',
-      status: 'OPEN',
+      totalAmount: 350.00,
+      status: 'ACTIVE',
     },
     {
       id: '2',
       name: 'Viagem para a Praia',
       members: ['Daniel', 'Eduarda', 'Fernanda', 'Gabriel'],
       expenses: [],
-      total_amount: '1250.50',
-      status: 'OPEN',
+      totalAmount: 1250.50,
+      status: 'ACTIVE',
     },
     {
       id: '3',
       name: 'Festa de Aniversário',
       members: ['Heitor', 'Julia'],
       expenses: [],
-      total_amount: '500.00',
-      status: 'CLOSED',
+      totalAmount: 500.00,
+      status: 'PENDING'
     },
 ];
 
@@ -89,7 +89,7 @@ export const Home: React.FC = () => {
       )}
 
       {isInstalled && !isPermitted && (
-        <Button onClick={connect} text="Connect Freighter" variant="primary" />
+        <Button onClick={connect} text="Connect Freighter" variant="primary" disabled={false} />
       )}
 
       {/* Caixa principal da carteira */}
@@ -140,14 +140,17 @@ export const Home: React.FC = () => {
               onClick={handleTransaction}
               text="Send Payment"
               variant="primary"
+              disabled={false}
             />
              <Button
               onClick={handleNotificacoesClick}
               text="Notificações"
               variant="secondary"
+              disabled={false}
             />
-            <Button onClick={refresh} text="Refresh" variant="secondary" />
-            <Button onClick={disconnect} text="Disconnect" variant="tertiary" />
+            <Button onClick={refresh} text="Refresh" variant="secondary" disabled={false} />
+            
+            <Button onClick={disconnect} text="Disconnect" variant="tertiary" disabled={false} />
           </div>
         </div>
       )}
