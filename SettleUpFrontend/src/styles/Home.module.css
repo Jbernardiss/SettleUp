@@ -32,8 +32,7 @@
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 2rem;
-  color: #764ba2; /* Cor do título alterada para roxo */
-  font-weight: 700; /* Deixa o título mais grosso (bold) */
+  color: #1a1a1a;
   padding-top: 1rem;
 }
 
@@ -145,9 +144,8 @@
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  justify-content: center; /* Centraliza o texto */
   gap: 8px;
-  white-space: nowrap; 
+  white-space: nowrap; /* Impede que o texto quebre */
 }
 
 .createEventButton:hover {
