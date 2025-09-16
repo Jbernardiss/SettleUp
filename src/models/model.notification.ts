@@ -8,9 +8,11 @@ type Notification = {
     eventId: string;
     expenseId: string;
     origin: string;
-    status: boolean;
+    status?: NotificationStatus;
     type: NotificationType;
-    settlement: { from: string, to: string, amount: number }
+    settlement?: { from: string, to: string, amount: number }[]
+    amount?: number;
+    read?: boolean;
     createdAt: Timestamp
 }
 

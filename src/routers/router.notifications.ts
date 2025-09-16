@@ -6,8 +6,10 @@ import {
 
 const notificationsRouter = Router();
 
-notificationsRouter.get("/:userId/notifications/get", getNotificationsByUserId)
+// Canonical routes (mounted at /notifications)
+notificationsRouter.get("/:userId/get", getNotificationsByUserId)
+notificationsRouter.get("/user/:userId", getNotificationsByUserId)
 
-notificationsRouter.post("/:eventId/notifications/answer_expense", answerExpenseNotification);
+notificationsRouter.post("/answer_expense", answerExpenseNotification);
 
 export default notificationsRouter;

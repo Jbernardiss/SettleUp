@@ -67,19 +67,22 @@ export const createEvent = async (req: Request, res: Response) => {
     const eventRef = db.collection('events').doc(eventId);
     const batch = db.batch();
 
+    const initialMembers = Array.from(new Set([origin, ...members]));
+
     batch.set(eventRef, {
       name: name,
       nInvitations: members.length,
       nResponses: 0,
       totalAmount: 0,
-      members: [], 
+      members: initialMembers, 
       expenses: [],
-      status: 'PENDING' as EventStatus
+      status: 'PENDING' as EventStatus,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     await batch.commit();
 
-    res.status(201).json({ message: 'Event created and notifications sent successfully', eventId: eventId });
+    res.status(201).json({ message: 'Event created successfully', eventId: eventId });
   } catch (error) {
     console.error('Error creating event:', error);
     res.status(500).json({ error: 'Failed to create event.' });

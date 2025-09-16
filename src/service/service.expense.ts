@@ -41,10 +41,13 @@ export const createExpense = async (req: Request, res: Response) => {
     if (!eventDoc.exists) {
       return res.status(404).json({ error: 'Event not found.' });
     }
-    const members = eventDoc.data()?.members;
+    const members: string[] = eventDoc.data()?.members || [];
+    if (!Array.isArray(members) || members.length === 0) {
+      return res.status(400).json({ error: 'Event has no members to notify.' });
+    }
 
     const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
-    async function getTransactionData(expense: string) {
+    async function getTransactionData(expense: string): Promise<[string, string]> {
       try {
         const tx = await server.transactions().transaction(expense).call();
         // console.log("Transaction Data:", tx);
@@ -57,18 +60,26 @@ export const createExpense = async (req: Request, res: Response) => {
             amount = op.amount
           }
         }
-        return [tx.source_account, amount]
+        if (!amount) {
+          throw new Error('Only native payment operations are supported for expenses.');
+        }
+        return [tx.source_account, amount as string]
       } catch (error) {
         console.error("Error fetching transaction:", error);
+        throw new Error('Failed to fetch transaction from Horizon.');
       }
     }
 
-    let [origin, amount] = await getTransactionData(expenseId);
+    const [origin, amountStr] = await getTransactionData(expenseId);
+    const amount = parseFloat(String(amountStr));
+    if (!isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ error: 'Invalid transaction amount.' });
+    }
 
     const batch = db.batch();
 
     batch.set(expenseRef, {
-      amount: parseFloat(amount),
+      amount: amount,
       event: eventId,
       nAccepted: 0,
       origin: origin,
@@ -83,6 +94,7 @@ export const createExpense = async (req: Request, res: Response) => {
           eventId: eventId,
           expenseId: expenseId,
           type: 'EXPENSE',
+          status: 'PENDING',
           read: false,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
         });

@@ -6,8 +6,9 @@ import {
 
 const expensesRouter = Router();
 
-expensesRouter.get("/expenses/:expenseId", getExpenseById);
+// Canonical routes (mounted at /expenses)
+expensesRouter.get("/:expenseId", getExpenseById);
 
-expensesRouter.post("/expenses/create", createExpense);
+expensesRouter.post("/create", createExpense);
 
 export default expensesRouter;

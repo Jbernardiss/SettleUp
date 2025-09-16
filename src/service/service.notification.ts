@@ -1,7 +1,6 @@
-import { NotificationStatus } from '@/models/model.notification';
+import { NotificationStatus } from '../models/model.notification';
 import { db } from '../utils/db';
 import { Request, Response } from 'express';
-import { EventStatus } from '@/models/model.event';
 import * as admin from 'firebase-admin'; 
 
 export const getNotificationsByUserId = async(req: Request, res: Response) => {
@@ -17,12 +16,12 @@ export const getNotificationsByUserId = async(req: Request, res: Response) => {
     const snapshot = await notificationsRef.where('destination', '==', userId).get();
 
     if (snapshot.empty) {
-      return res.status(200).json();
+      return res.status(200).json([]);
     }
 
-    let userNotifications: any;
+    const userNotifications: any[] = [];
     snapshot.forEach(doc => {
-        userNotifications.push({ id: doc.id,...doc.data() });
+        userNotifications.push({ id: doc.id, ...doc.data() });
     });
 
     res.status(200).json(userNotifications);
@@ -34,19 +33,19 @@ export const getNotificationsByUserId = async(req: Request, res: Response) => {
 
 export const answerExpenseNotification = async (req: Request, res: Response) => {
   try {
-    const { expenseId, status } = req.body;
+    const { expenseId, status } = req.body as { expenseId?: string; status?: NotificationStatus };
 
     if (!expenseId || !status) {
       return res.status(400).json({ error: 'expenseId (transaction hash) and status are required.' });
     }
 
-    if (status!== 'ACCEPTED' && status!== 'REJECTED') {
-      return res.status(400).json({ error: 'Status must be either "ACCEPTED" or "REJECTED".' });
+    if (status!== 'ACCEPTED' && status!== 'REFUSED') {
+      return res.status(400).json({ error: 'Status must be either "ACCEPTED" or "REFUSED".' });
     }
 
     const expenseRef = db.collection('expenses').doc(expenseId);
 
-    if (status === "ACCEPTED" as NotificationStatus) {
+    if (status === 'ACCEPTED') {
       await expenseRef.update({
         nAccepted: admin.firestore.FieldValue.increment(1)
       });
@@ -65,7 +64,7 @@ export const answerExpenseNotification = async (req: Request, res: Response) => 
         return res.status(404).json({ error: 'Associated event not found.' });
       }
 
-      const members = eventDoc.data()?.members;
+      const members = eventDoc.data()?.members || [];
       const requiredAcceptances = Math.floor(members.length / 2); 
 
       if (nAccepted > requiredAcceptances) {
