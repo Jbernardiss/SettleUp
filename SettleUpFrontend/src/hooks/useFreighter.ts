@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import getPublicKey, {
+import {
   isConnected,
+  isAllowed,
+  getAddress,
   getNetwork,
   setAllowed,
   signTransaction,
@@ -17,32 +19,36 @@ type FreighterState = {
 
 export function useFreighter() {
   const [state, setState] = useState<FreighterState>({
-    isInstalled:
-      typeof window !== "undefined" && !!(window as any).freighterApi,
+    isInstalled: typeof window !== "undefined" && !!(window as any).freighterApi,
     isPermitted: false,
   });
 
   const refresh = useCallback(async () => {
     try {
-      // const permitted = await isConnected();
-      // const pk = permitted ? getPublicKey : undefined;
-      // const net = permitted ? await getNetwork() : undefined;
-      const permittedResult = await isConnected();
-      const pkResult = permittedResult.isConnected ? await getPublicKey.getAddress() : undefined;
-      const netResult = permittedResult.isConnected ? await getNetwork() : undefined;
+      const connected = await isConnected();
+      if (!connected.isConnected) {
+        setState((s) => ({ ...s, isPermitted: false, publicKey: undefined, network: undefined, error: undefined }));
+        return;
+      }
+
+      const allowed = await isAllowed();
+      if (!allowed.isAllowed) {
+        setState((s) => ({ ...s, isPermitted: false, publicKey: undefined, network: undefined, error: undefined }));
+        return;
+      }
+
+      const addressResult = await getAddress();
+      const networkResult = await getNetwork();
       
-      setState((s) => ({
-        ...s,
-        isPermitted: permittedResult.isConnected,
-        publicKey: pkResult?.address,
-        network: netResult?.network,
-        error: undefined,
+      setState((s) => ({ 
+        ...s, 
+        isPermitted: true, 
+        publicKey: addressResult.address, 
+        network: networkResult.network, 
+        error: undefined 
       }));
     } catch (e: any) {
-      setState((s) => ({
-        ...s,
-        error: e?.message ?? "Failed to refresh Freighter state",
-      }));
+      setState((s) => ({ ...s, error: e?.message ?? "Failed to refresh Freighter state" }));
     }
   }, []);
 
@@ -52,15 +58,22 @@ export function useFreighter() {
 
   const connect = useCallback(async () => {
     try {
-      await requestAccess();
-      await setAllowed();
+      const accessResult = await requestAccess();
+      if (accessResult.error) {
+        setState((s) => ({ ...s, error: accessResult.error }));
+        return false;
+      }
+
+      const allowedResult = await setAllowed();
+      if (allowedResult.error) {
+        setState((s) => ({ ...s, error: allowedResult.error }));
+        return false;
+      }
+
       await refresh();
       return true;
     } catch (e: any) {
-      setState((s) => ({
-        ...s,
-        error: e?.message ?? "Failed to connect Freighter",
-      }));
+      setState((s) => ({ ...s, error: e?.message ?? "Failed to connect Freighter" }));
       return false;
     }
   }, [refresh]);
@@ -83,3 +96,5 @@ export function useFreighter() {
 
   return value;
 }
+
+
