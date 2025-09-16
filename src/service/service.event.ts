@@ -57,9 +57,9 @@ export const getEventsByUserId = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    const { name, origin } = req.body;
+    const { name, userId } = req.body;
 
-    if (!name || !origin) {
+    if (!name || !userId) {
       return res.status(400).json({ error: 'Event name, a list of members, and an origin public key are required.' });
     }
 
