@@ -56,6 +56,7 @@ const CreateEvent: React.FC = () => {
       };
 
       saveEventToStorage(eventData);
+      navigate('/');
     } catch (err) {
       setError("Erro ao criar evento. Tente novamente.");
     } finally {
