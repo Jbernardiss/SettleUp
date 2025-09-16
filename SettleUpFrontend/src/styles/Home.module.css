@@ -30,23 +30,23 @@
 
 .title {
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 3.5rem; /* Aumentado o tamanho */
   margin-bottom: 2rem;
-  color: #1a1a1a;
+  color: #764ba2; /* Cor roxa */
   padding-top: 1rem;
+  font-weight: 700;
 }
 
 .mainContent {
-  display: flex;
-  flex-direction: row;
-  gap: 32px; /* Aumentado o espaço entre as caixas */
+  display: grid; /* MUDANÇA: Usando Grid para o layout */
+  grid-template-columns: 1fr 1fr; /* MUDANÇA: Duas colunas de tamanho igual */
+  gap: 32px;
   width: 100%;
-  padding: 0 0 32px 0; /* Adicionado espaçamento inferior */
+  padding: 0 0 32px 0;
 }
 
 .walletInfo {
-  flex: 1;
-  min-width: 400px;
+  /* REMOVIDO: flex e min-width */
   padding: 24px;
   border-radius: 16px;
   background: #f8f9fa;
@@ -105,8 +105,43 @@
   margin-top: 24px;
 }
 
+/* NOVO: Estilo genérico para botões com gradiente */
+.actionButton {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centraliza o texto */
+  gap: 8px;
+  width: 100%; /* Ocupa toda a largura do container */
+}
+
+.actionButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+
 .eventsSection {
-  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* NOVO: Contêiner para a caixa de eventos */
+.eventsContainer {
+  padding: 24px;
+  border-radius: 16px;
+  background: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+  flex-grow: 1; /* Faz a caixa crescer para preencher o espaço */
   display: flex;
   flex-direction: column;
 }
@@ -116,18 +151,12 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  /* Estilos da caixa cinza */
-  padding: 24px;
-  border-radius: 16px;
-  background: #f8f9fa;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
+  /* REMOVIDO: Estilos de caixa movidos para .eventsContainer */
 }
 
-/* Novo estilo para o título de eventos */
 .eventsTitle {
-  font-size: 1.75rem; /* Tamanho aumentado */
-  font-weight: 700; /* Negrito */
+  font-size: 1.75rem;
+  font-weight: 700;
   color: #1a1a1a;
   margin: 0;
 }
@@ -145,7 +174,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  white-space: nowrap; /* Impede que o texto quebre */
+  white-space: nowrap;
 }
 
 .createEventButton:hover {
@@ -159,16 +188,29 @@
   gap: 20px;
 }
 
+.noEventsMessage {
+  text-align: center;
+  padding: 40px 20px;
+  color: #495057; /* Cor ajustada para cinza escuro */
+  font-size: 1.25rem; /* Texto maior */
+  font-weight: 500; /* Peso da fonte médio */
+  /* Removido o background-color e a borda */
+  margin-top: 1rem;
+  flex-grow: 1; /* Adicionado para centralizar verticalmente */
+  display: flex; /* Adicionado para centralizar verticalmente */
+  align-items: center; /* Adicionado para centralizar verticalmente */
+  justify-content: center; /* Adicionado para centralizar verticalmente */
+}
+
 @media (max-width: 900px) {
   .mainContent {
-    flex-direction: column;
+    grid-template-columns: 1fr; /* MUDANÇA: Coluna única em telas menores */
     align-items: center;
   }
 
   .walletInfo {
     width: 100%;
     max-width: 600px;
-    min-width: unset;
   }
 
   .eventsSection {

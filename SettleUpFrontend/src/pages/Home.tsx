@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, EventsCARD } from "../components/index";
-import { useUserEvents } from "../hooks/useEvents"; // Importando o hook de eventos
+import { EventsCARD } from "../components/index";
+import { useUserEvents } from "../hooks/useEvents";
 import { useFreighterWallet } from "../contexts/FreighterWalletContext";
-import { Plus, Bell } from "lucide-react"; // Importando o ícone Bell
+import { Plus, Bell } from "lucide-react";
 import styles from "../styles/Home.module.css";
 
 export const Home: React.FC = () => {
@@ -64,12 +64,13 @@ export const Home: React.FC = () => {
     <div className={styles.container}>
       {isPermitted && (
         <header className={styles.header}>
-          <Button
+          <button
             onClick={disconnect}
-            text="Disconnect"
-            variant="tertiary"
-            disabled={false}
-          />
+            className={styles.actionButton}
+            style={{ width: 'auto', backgroundColor: '#6c757d' }}
+          >
+            Disconnect
+          </button>
           <button
             onClick={handleNotificationClick}
             className={styles.bellButton}
@@ -83,12 +84,12 @@ export const Home: React.FC = () => {
       <h1 className={styles.title}>SettleUp</h1>
 
       {isInstalled && !isPermitted && (
-        <Button
+        <button
           onClick={connect}
-          text="Connect Freighter"
-          variant="primary"
-          disabled={false}
-        />
+          className={styles.actionButton}
+        >
+          Connect Freighter
+        </button>
       )}
 
       <div className={styles.mainContent}>
@@ -138,37 +139,45 @@ export const Home: React.FC = () => {
               </div>
 
               <div className={styles.buttonGroup}>
-                <Button
+                <button
                   onClick={handleTransaction}
-                  text="Send Payment"
-                  variant="primary"
-                  disabled={false}
-                />
+                  className={styles.actionButton}
+                >
+                  Send Payment
+                </button>
               </div>
             </div>
 
             <div className={styles.eventsSection}>
-              <div className={styles.eventsHeader}>
-                <h2 className={styles.eventsTitle}>Meus Eventos</h2>
-                <button
-                  onClick={handleCreateEventClick}
-                  className={styles.createEventButton}
-                  title="Criar novo evento"
-                >
-                  <Plus size={20} />
-                  Criar Evento
-                </button>
-              </div>
-              {eventsIsLoading && <p>Carregando eventos...</p>}
-              {eventsError && <p>Erro ao carregar eventos.</p>}
-              <div className={styles.eventsGrid}>
-                {Array.isArray(events) && events.length > 0 ? (
-                  events.map((event) => (
-                    // @ts-ignore
-                    <EventsCARD key={event.id} event={event} />
-                  ))
-                ) : (
-                  !eventsIsLoading && <p>Nenhum evento encontrado.</p>
+              <div className={styles.eventsContainer}>
+                <div className={styles.eventsHeader}>
+                  <h2 className={styles.eventsTitle}>Meus Eventos</h2>
+                  <button
+                    onClick={handleCreateEventClick}
+                    className={styles.createEventButton}
+                    title="Criar novo evento"
+                  >
+                    <Plus size={20} />
+                    Criar Evento
+                  </button>
+                </div>
+                
+                {eventsIsLoading && <p>Carregando eventos...</p>}
+                {eventsError && <p>Erro ao carregar eventos.</p>}
+                
+                {!eventsIsLoading && !eventsError && (
+                  Array.isArray(events) && events.length > 0 ? (
+                    <div className={styles.eventsGrid}>
+                      {events.map((event) => (
+                        // @ts-ignore
+                        <EventsCARD key={event.id} event={event} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={styles.noEventsMessage}>
+                      Nenhum evento encontrado.
+                    </div>
+                  )
                 )}
               </div>
             </div>
