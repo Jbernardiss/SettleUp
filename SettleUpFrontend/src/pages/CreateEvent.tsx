@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, ArrowRight } from "lucide-react";
+import { postEvent } from "../services/events";
 import styles from "../styles/CreateEvent.module.css";
 
 interface EventData {
@@ -16,15 +17,6 @@ const CreateEvent: React.FC = () => {
   const [eventName, setEventName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const generateEventId = (): string => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let result = "";
-    for (let i = 0; i < 6; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  };
 
   const saveEventToStorage = (eventData: EventData) => {
     const events = JSON.parse(localStorage.getItem("settleup_events") || "[]");
@@ -50,11 +42,11 @@ const CreateEvent: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Simular criação do evento
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Create event via API
+      const { eventId } = await postEvent();
 
       const eventData: EventData = {
-        id: generateEventId(),
+        id: eventId,
         name: eventName.trim(),
         createdAt: new Date().toISOString(),
         participants: [],

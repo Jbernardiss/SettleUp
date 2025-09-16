@@ -17,7 +17,7 @@ function App() {
             <Route path="carteira" element={<CarteiraDigital />} />
             <Route path="qrcode" element={<CreateEvent />} />
             <Route path="invite-qr" element={<InviteQR />} />
-            <Route path="event/:id" element={<EventDetail />} />
+            <Route path="event-details/:id" element={<EventDetail />} />
           </Route>
         </Routes>
       </FreighterWalletProvider>
