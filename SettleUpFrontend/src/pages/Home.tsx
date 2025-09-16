@@ -1,42 +1,68 @@
-import React, { useState } from "react";
-import { Button } from "../components";
+import React, { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, EventsCARD } from "../components/index";
 import { useFreighterTestWallet } from "../hooks/useFreighterTestWallet";
+import type { EventData } from "../hooks/useEvents";
+
+// Dados mocados para os eventos (do primeiro código)
+const mockEvents: EventData[] = [
+    {
+      id: '1',
+      name: 'Churrasco de Fim de Ano',
+      members: ['Alice', 'Beto', 'Carla'],
+      expenses: [],
+      total_amount: '350.00',
+      status: 'OPEN',
+    },
+    {
+      id: '2',
+      name: 'Viagem para a Praia',
+      members: ['Daniel', 'Eduarda', 'Fernanda', 'Gabriel'],
+      expenses: [],
+      total_amount: '1250.50',
+      status: 'OPEN',
+    },
+    {
+      id: '3',
+      name: 'Festa de Aniversário',
+      members: ['Heitor', 'Julia'],
+      expenses: [],
+      total_amount: '500.00',
+      status: 'CLOSED',
+    },
+];
+
 
 export const Home: React.FC = () => {
+  const navigate = useNavigate();
+
+  // Hooks da carteira (do segundo código)
   const {
     isInstalled,
-    isConnected,
     isPermitted,
     publicKey,
     network,
-    balance,
     nativeBalance,
     error,
     isLoading,
     connect,
     disconnect,
     refresh,
-    getAccountDetails,
     makeTransaction,
   } = useFreighterTestWallet();
 
-  // transaction form state
+  // State do formulário de transação
   const [destination, setDestination] = useState("");
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
 
+  // Handler para a transação
   const handleTransaction = async () => {
     if (!destination || !amount) {
       alert("Destination and amount are required.");
       return;
     }
-
-    const result = await makeTransaction({
-      destinationId: destination,
-      amount,
-      memo,
-    });
-
+    const result = await makeTransaction({ destinationId: destination, amount, memo });
     if (result?.success) {
       alert(`✅ Transaction submitted! Hash: ${result.hash}`);
       setDestination("");
@@ -47,9 +73,14 @@ export const Home: React.FC = () => {
     }
   };
 
+  // Handler para o botão de notificações
+  const handleNotificacoesClick = useCallback(() => {
+    navigate("/notificacoes");
+  }, [navigate]);
+
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center py-12">
-      <h1 className="text-center text-5xl mb-6">Stellar Walletttttt</h1>
+    <div className="relative flex min-h-screen flex-col items-center py-12 px-4">
+      <h1 className="text-center text-5xl mb-6">Stellar Wallet</h1>
 
       {!isInstalled && (
         <div className="text-red-600">
@@ -61,26 +92,27 @@ export const Home: React.FC = () => {
         <Button onClick={connect} text="Connect Freighter" variant="primary" />
       )}
 
+      {/* Caixa principal da carteira */}
       {isPermitted && (
-        <div className="w-full max-w-2xl rounded border p-6 space-y-4">
-          <div className="text-sm text-gray-700">Network: {network}</div>
+        <div className="w-full max-w-2xl rounded border bg-white p-6 space-y-4 shadow-md">
+          <div className="text-sm text-gray-700">Network: <span className="font-bold text-green-600">{network}</span></div>
           <div className="text-sm text-gray-700 break-all">
-            Public Key: {publicKey}
+            Public Key: <span className="font-mono">{publicKey}</span>
           </div>
 
           {isLoading && <div className="text-sm">Loading account info…</div>}
           {error && <div className="text-sm text-red-500">{error}</div>}
 
           {nativeBalance && (
-            <div className="text-sm">
+            <div className="text-lg">
               <strong>Balance (XLM):</strong> {nativeBalance}
             </div>
           )}
 
-          {/* Transaction form */}
-          <div className="mt-6">
-            <h2 className="font-semibold mb-2">Make a Transaction</h2>
-            <div className="space-y-2">
+          {/* Formulário de transação */}
+          <div className="pt-4 border-t">
+            <h2 className="font-semibold mb-2 text-lg">Make a Transaction</h2>
+            <div className="space-y-3">
               <input
                 className="w-full rounded border p-2 text-sm"
                 placeholder="Destination account ID"
@@ -99,19 +131,37 @@ export const Home: React.FC = () => {
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
               />
-              <Button
-                onClick={handleTransaction}
-                text="Send Payment"
-                variant="primary"
-              />
             </div>
           </div>
-
-          <div className="flex gap-4 mt-4">
+          
+          {/* Botões de ação em uma única linha */}
+          <div className="flex flex-wrap items-center gap-4 pt-4 border-t">
+            <Button
+              onClick={handleTransaction}
+              text="Send Payment"
+              variant="primary"
+            />
+             <Button
+              onClick={handleNotificacoesClick}
+              text="Notificações"
+              variant="secondary"
+            />
             <Button onClick={refresh} text="Refresh" variant="secondary" />
             <Button onClick={disconnect} text="Disconnect" variant="tertiary" />
           </div>
         </div>
+      )}
+
+      {/* Lista de eventos (exibida abaixo da caixa da carteira) */}
+      {isPermitted && (
+         <div className="mt-12 w-full max-w-2xl rounded-lg border border-gray-600 bg-gray-700 p-6 shadow-lg">
+            <h2 className="text-3xl font-bold mb-6 text-white">Meus Eventos</h2>
+            <div className="flex flex-col gap-6">
+              {mockEvents.map(event => (
+                <EventsCARD key={event.id} event={event} />
+              ))}
+            </div>
+          </div>
       )}
     </div>
   );
