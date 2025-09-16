@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { db } from '../utils/db'; 
 import { v4 as uuidv4 } from 'uuid';
+import { Event, EventStatus } from "../models/model.event"
+import { Notification, NotificationStatus, NotificationType } from "../models/model.notification"
 import * as admin from 'firebase-admin'; 
 
 export const getEventById = async (req: Request, res: Response) => {
@@ -37,10 +39,10 @@ export const getEventsByUserId = async (req: Request, res: Response) => {
     const snapshot = await eventsRef.where('members', 'array-contains', userId).get();
 
     if (snapshot.empty) {
-      return res.status(200).json();
+      return res.status(200).json(); 
     }
 
-    let userEvents: any;
+    let userEvents: any; 
     snapshot.forEach(doc => {
       userEvents.push({ id: doc.id,...doc.data() });
     });
@@ -54,85 +56,150 @@ export const getEventsByUserId = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    const { name, members } = req.body;
+    const { name, members, origin } = req.body;
 
-    if (!members || !Array.isArray(members) || members.length === 0) {
-      return res.status(400).json({ error: 'A list of member public keys is required.' });
+    if (!name || !members || !Array.isArray(members) || members.length === 0 ||!origin) {
+      return res.status(400).json({ error: 'Event name, a list of members, and an origin public key are required.' });
     }
 
     const eventId = uuidv4();
     const eventRef = db.collection('events').doc(eventId);
+    const notificationsRef = db.collection('notifications');
 
-    await eventRef.set({
+    const batch = db.batch();
+
+    batch.set(eventRef, {
       name: name,
-      members: members, 
-      expenses: [], 
-      finished: false,
+      nInvitations: members.length,
+      nResponses: 0,
+      totalAmount: 0,
+      members: [], 
+      expenses: [],
+      status: 'PENDING' as EventStatus
     });
 
-    res.status(201).json({ message: 'Event created successfully', eventId: eventId });
+    members.forEach((memberPublicKey: string) => {
+      if (memberPublicKey !== origin) {
+        const notificationRef = notificationsRef.doc(); 
+        batch.set(notificationRef, {
+          destination: memberPublicKey,
+          origin: origin,
+          eventId: eventId,
+          expenseId: null, 
+          type: 'EVENT' as NotificationType,
+          status: 'PENDING' as NotificationStatus,
+          read: false,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(), 
+        });
+      }
+    });
+
+    await batch.commit();
+
+    res.status(201).json({ message: 'Event created and notifications sent successfully', eventId: eventId });
   } catch (error) {
     console.error('Error creating event:', error);
     res.status(500).json({ error: 'Failed to create event.' });
   }
 };
 
-export const addUserToEvent = async (req: Request, res: Response) => {
-  try {
-    const { eventId } = req.params;
-    const { publicKey } = req.body;
+export const finishEvent = async (req: Request, res: Response): Promise<void> => {
+  const { eventId } = req.params;
 
-    if (!publicKey) {
-      return res.status(400).json({ error: 'User public key is required.' });
-    }
-
-    const eventRef = db.collection('events').doc(eventId);
-    
-    await eventRef.update({
-      members: admin.firestore.FieldValue.arrayUnion(publicKey)
-    });
-
-    res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
-  } catch (error) {
-    console.error('Error adding user to event:', error);
-    res.status(500).json({ error: 'Failed to add user.' });
+  if (!eventId) {
+    res.status(400).json({ error: 'Event ID is required.' });
+    return;
   }
-};
 
-export const addExpenseToEvent = async (req: Request, res: Response) => {
   try {
-    const { eventId } = req.params;
-    const { transactionHash } = req.body;
+    await db.runTransaction(async (transaction) => {
+      const eventRef = db.collection('events').doc(eventId);
+      const eventDoc = await transaction.get(eventRef);
 
-    if (!transactionHash) {
-      return res.status(400).json({ error: 'Transaction hash is required.' });
+      if (!eventDoc.exists) {
+        throw new Error('Event not found.');
+      }
+
+      const event = eventDoc.data() as Event;
+
+      if (event.status === 'FINISHED') {
+        throw new Error('This event has already been finished.');
+      }
+
+      const { members, expenses: expenseIds } = event;
+      const memberCount = members.length;
+
+      if (memberCount === 0) {
+        transaction.update(eventRef, { status: 'FINISHED' as EventStatus });
+        return;
+      }
+      
+      const expenseRefs = expenseIds.map((id) => db.collection('expenses').doc(id));
+      const expenseDocs = await transaction.getAll(...expenseRefs);
+
+      const balances: { [memberId: string]: number } = {};
+      members.forEach((member) => (balances[member] = 0));
+
+      let totalEventCost = 0;
+      for (const doc of expenseDocs) {
+        if (doc.exists) {
+          const expense = doc.data() as { amount: number; origin: string; };
+          
+          if (expense && typeof expense.amount === 'number' && expense.origin) {
+            balances[expense.origin] += expense.amount;
+            totalEventCost += expense.amount;
+          }
+        }
+      }
+
+      const sharePerMember = totalEventCost / memberCount;
+
+      members.forEach((member) => {
+        balances[member] -= sharePerMember;
+      });
+
+      for (const memberId of members) {
+        const finalBalance = balances[memberId];
+        const notificationRef = db.collection('notifications').doc();
+        
+        const message = finalBalance >= 0
+            ? `Event settled! You get back $${finalBalance.toFixed(2)}.`
+            : `Event settled! You owe $${Math.abs(finalBalance).toFixed(2)}.`;
+
+        const notificationPayload = {
+          destination: memberId,
+          eventId: eventId,
+          expenseId: '',
+          origin: 'system',
+          status: 'ACCEPTED' as NotificationStatus,
+          type: 'FINAL' as NotificationType,
+          message: message,
+          amount: finalBalance,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        transaction.set(notificationRef, notificationPayload);
+      }
+
+      transaction.update(eventRef, {
+        status: 'FINISHED' as EventStatus,
+        finalBalances: balances,
+      });
+    });
+
+    res.status(200).json({
+      message: `Event ${eventId} has been successfully finished.`,
+    });
+
+  } catch (error: any) {
+    console.error(`Failed to finish event ${eventId}:`, error);
+
+    if (error.message.includes('not found')) {
+      res.status(404).json({ error: error.message });
+    } else if (error.message.includes('already been finished')) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'An unexpected error occurred.' });
     }
-
-    const eventRef = db.collection('events').doc(eventId);
-
-    await eventRef.update({
-      expenses: admin.firestore.FieldValue.arrayUnion(transactionHash)
-    });
-
-    res.status(201).json({ message: 'Expense hash added successfully', transactionHash: transactionHash });
-  } catch (error) {
-    console.error('Error adding expense:', error);
-    res.status(500).json({ error: 'Failed to add expense.' });
-  }
-};
-
-export const finishEvent = async (req: Request, res: Response) => {
-  try {
-    const { eventId } = req.params;
-    const eventRef = db.collection('events').doc(eventId);
-
-    await eventRef.update({
-      finished: true,
-    });
-
-    res.status(200).json({ message: `Event ${eventId} has been marked as finished.` });
-  } catch (error) {
-    console.error('Error finishing event:', error);
-    res.status(500).json({ error: 'Failed to finish event.' });
   }
 };
