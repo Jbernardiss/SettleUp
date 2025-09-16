@@ -18,7 +18,7 @@ const InviteQR: React.FC = () => {
   const [copySuccess, setCopySuccess] = useState(false);
 
   const inviteUrl = eventData
-    ? `https://settleup.app/join/${eventData.id}`
+    ? `http://https://settleup-seven.vercel.app/events/${eventData.id}?invite`
     : "";
 
   useEffect(() => {
@@ -117,11 +117,7 @@ const InviteQR: React.FC = () => {
     if (!eventData) return;
 
     // Redirecionar para dashboard do evento
-    navigate(
-      `/event-dashboard?eventId=${eventData.id}&eventName=${encodeURIComponent(
-        eventData.name
-      )}`
-    );
+    navigate(`/event/${eventData.id}`);
   };
 
   if (!eventData) {

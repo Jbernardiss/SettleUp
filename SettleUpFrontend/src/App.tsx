@@ -3,6 +3,7 @@ import { Login, Notificacoes, Home, CarteiraDigital } from "../src/pages/";
 import CreateEvent from "./pages/CreateEvent";
 import { FreighterWalletProvider } from "./contexts/FreighterWalletContext";
 import InviteQR from "./pages/InviteQR";
+import { EventDetail } from "./pages/EventDetail";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="carteira" element={<CarteiraDigital />} />
             <Route path="qrcode" element={<CreateEvent />} />
             <Route path="invite-qr" element={<InviteQR />} />
+            <Route path="event/:id" element={<EventDetail />} />
           </Route>
         </Routes>
       </FreighterWalletProvider>
