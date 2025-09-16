@@ -1,0 +1,298 @@
+.container {
+  max-width: 428px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #fff;
+  position: relative;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #666;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backBtn:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666;
+}
+
+.mainContent {
+  padding: 24px;
+  padding-bottom: 40px;
+}
+
+.inviteContainer {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.eventInfo {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.eventHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eventIcon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.eventDetails h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.eventId {
+  color: #666;
+  font-size: 14px;
+  font-family: monospace;
+  margin: 0;
+}
+
+.qrSection {
+  background: #fff;
+  border: 1px solid #e1e5e9;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.qrHeader h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.qrHeader p {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 24px 0;
+}
+
+.qrContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.qrCode {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.qrFallback {
+  width: 200px;
+  height: 200px;
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+}
+
+.inviteOptions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.shareBtn,
+.copyBtn {
+  flex: 1;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  color: #495057;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.shareBtn:hover,
+.copyBtn:hover {
+  background: #e9ecef;
+  border-color: #ced4da;
+}
+
+.manualInvite {
+  display: flex;
+  flex-direction: column;
+}
+
+.manualInvite h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.inviteLinkContainer {
+  display: flex;
+  gap: 8px;
+}
+
+.inviteLink {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #f8f9fa;
+  color: #666;
+  font-family: monospace;
+}
+
+.copyLinkBtn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copyLinkBtn:hover {
+  background: #5a6fd8;
+}
+
+.copyLinkBtn.copied {
+  background: #27ae60;
+}
+
+.nextSteps {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.nextSteps h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.nextSteps ol {
+  padding-left: 20px;
+  color: #666;
+  margin: 0;
+}
+
+.nextSteps li {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.continueBtn {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.continueBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.continueBtn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+  .container {
+    max-width: 100%;
+  }
+  
+  .mainContent {
+    padding: 20px 16px;
+  }
+  
+  .header {
+    padding: 16px 20px;
+  }
+  
+  .inviteOptions {
+    flex-direction: column;
+  }
+  
+  .shareBtn,
+  .copyBtn {
+    flex: none;
+  }
+}

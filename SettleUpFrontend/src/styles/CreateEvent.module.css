@@ -1,0 +1,252 @@
+.container {
+    max-width: 428px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: #fff;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+  }
+  
+  .backBtn {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 8px;
+    color: #666;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .backBtn:hover {
+    background: #f5f5f5;
+    color: #333;
+  }
+  
+  .mainContent {
+    padding: 24px;
+    padding-bottom: 40px;
+  }
+  
+  .eventFormContainer {
+    max-width: 100%;
+  }
+  
+  .formHeader {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  
+  .iconContainer {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    color: white;
+  }
+  
+  .formHeader h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+  }
+  
+  .formHeader p {
+    color: #666;
+    font-size: 16px;
+    margin: 0;
+  }
+  
+  .eventForm {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .errorMessage {
+    background: #fee;
+    color: #c33;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid #fcc;
+    animation: slideDown 0.3s ease;
+  }
+  
+  .inputGroup {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .inputGroup label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  .inputGroup input {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background: #fafafa;
+    box-sizing: border-box;
+  }
+  
+  .inputGroup input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  .inputGroup input::placeholder {
+    color: #999;
+  }
+  
+  .inputGroup input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .charCounter {
+    text-align: right;
+    color: #999;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  
+  .formTips {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  
+  .formTips h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin: 0 0 12px 0;
+  }
+  
+  .formTips ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .formTips li {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 6px;
+    padding-left: 16px;
+    position: relative;
+  }
+  
+  .formTips li:before {
+    content: 'â€¢';
+    color: #667eea;
+    position: absolute;
+    left: 0;
+  }
+  
+  .createBtn {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .createBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  }
+  
+  .createBtn:active {
+    transform: translateY(0);
+  }
+  
+  .createBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  @keyframes slideDown {
+    from { 
+      opacity: 0; 
+      transform: translateY(-10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .container {
+      max-width: 100%;
+    }
+    
+    .mainContent {
+      padding: 20px 16px;
+    }
+    
+    .header {
+      padding: 16px 20px;
+    }
+  }
