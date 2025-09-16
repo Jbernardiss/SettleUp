@@ -32,7 +32,7 @@ const fetchExpenseById = async (expenseId: string): Promise<Expense> => {
   return response.json();
 };
 
-export const useEventWithExpenses = (eventId: string | undefined) => {
+export const useEvents = (eventId: string | undefined) => {
   const [event, setEvent] = useState<EventData | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -73,3 +73,4 @@ export const useEventWithExpenses = (eventId: string | undefined) => {
 
   return { event, expenses, isLoading, error, refresh: fetchEventData };
 };
+
