@@ -14,10 +14,11 @@ export const postEventUser = async (
 };
 
 export const postEvent = async (
+  name: string,
   userId: string
 ): Promise<{ eventId: string }> => {
   try {
-    const response = await axios.post<{ eventId: string }>(`/create`, { userId });
+    const response = await axios.post<{ eventId: string }>(`/events/create`, { name, userId });
     return response.data;
   } catch (error) {
     console.error("Error creating event:", error);

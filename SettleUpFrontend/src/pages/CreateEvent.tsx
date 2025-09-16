@@ -45,7 +45,7 @@ const CreateEvent: React.FC = () => {
 
     try {
       // Create event via API
-      const { eventId } = await postEvent(publicKey ?? '');
+      const { eventId } = await postEvent(eventName.trim(), publicKey ?? '');
 
       const eventData: EventData = {
         id: eventId,
