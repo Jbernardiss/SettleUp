@@ -8,9 +8,9 @@ interface Notification {
   read: boolean;
 }
 
-export const getAllNotifications = async (): Promise<Notification[]> => {
+export const getAllNotifications = async (userId: string): Promise<Notification[]> => {
   try {
-    const response = await axios.get<Notification[]>("/:userId/notifications/get");
+    const response = await axios.get<Notification[]>(`/${userId}/notifications/get`);
     return response.data;
   } catch (error) {
     console.error("Error fetching notifications:", error);

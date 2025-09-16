@@ -1,9 +1,13 @@
+// src/pages/Home.tsx
+
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, EventsCARD } from "../components/index";
-import { useUserEvents } from "../hooks/useEvents"; // Importando o hook de eventos
+import { EventsCARD } from "../components/index"; // O componente Button foi removido pois não é mais usado aqui
+import { useUserEvents } from "../hooks/useEvents";
 import { useFreighterWallet } from "../contexts/FreighterWalletContext";
-import { Plus } from "lucide-react";
+import { Plus, Bell } from "lucide-react";
+import styles from "../styles/Home.module.css";
+import { type Event } from "../../../src/models/model.event";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -21,8 +25,11 @@ export const Home: React.FC = () => {
     makeTransaction,
   } = useFreighterWallet();
 
-  // Usando o hook useEvents com a chave pública do usuário
-  const { data: events, isLoading: eventsIsLoading, error: eventsError } = useUserEvents(publicKey);
+  const {
+    data: events,
+    isLoading: eventsIsLoading,
+    error: eventsError,
+  } = useUserEvents(publicKey);
 
   const [destination, setDestination] = useState("");
   const [amount, setAmount] = useState("");
@@ -56,20 +63,20 @@ export const Home: React.FC = () => {
   console.log(showEvents, events, eventsError);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center py-12 px-4">
-      {/* Notification bell icon */}
-      <div className="absolute top-4 right-4">
-        <button
-          onClick={handleNotificacoesClick}
-          className="relative p-2 text-gray-100 hover:text-gray-200 transition-colors"
-          aria-label="Notifications"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+    <div className={styles.container}>
+      {isPermitted && (
+        <header className={styles.header}>
+          {/* Botão Disconnect atualizado */}
+          <button
+            onClick={disconnect}
+            className={styles.createEventButton}
+          >
+            Disconnect
+          </button>
+          <button
+            onClick={handleNotificationClick}
+            className={styles.bellButton}
+            title="Notificações"
           >
             <path
               strokeLinecap="round"
@@ -81,7 +88,8 @@ export const Home: React.FC = () => {
         </button>
       </div>
 
-      <h1 className="text-center text-5xl mb-6">Stellar Wallet</h1>
+      {/* Título com novo estilo será aplicado automaticamente pela alteração no CSS */}
+      <h1 className={styles.title}>SettleUp</h1>
 
       {!isInstalled && (
         <div className="text-red-600">
@@ -90,22 +98,66 @@ export const Home: React.FC = () => {
       )}
 
       {isInstalled && !isPermitted && (
-        <Button onClick={connect} text="Connect Freighter" variant="primary" disabled={false} />
+         <button onClick={connect} className={styles.createEventButton}>
+           Connect Freighter
+         </button>
       )}
 
-      {isPermitted && (
-        <div className="w-full max-w-2xl rounded border bg-white p-6 space-y-4 shadow-md">
-          <div className="text-sm text-gray-700">Network: <span className="font-bold text-green-600">{network}</span></div>
-          <div className="text-sm text-gray-700 break-all">
-            Public Key: <span className="font-mono">{publicKey}</span>
-          </div>
+      <div className={styles.mainContent}>
+        {isPermitted && (
+          <>
+            <div className={styles.walletInfo}>
+              <div className={styles.infoRow}>
+                <span>Network:</span>
+                <span className="font-bold text-green-600">{network}</span>
+              </div>
+              <div className={styles.infoRow}>
+                <span>Public Key:</span>
+                <span className="font-mono truncate">{publicKey}</span>
+              </div>
 
-          {walletIsLoading && <div className="text-sm">Loading account info…</div>}
-          {walletError && <div className="text-sm text-red-500">{walletError}</div>}
+              {walletIsLoading && <div className="text-sm">Loading...</div>}
+              {walletError && (
+                <div className="text-sm text-red-500">{walletError}</div>
+              )}
 
-          {nativeBalance && (
-            <div className="text-lg">
-              <strong>Balance (XLM):</strong> {nativeBalance}
+              {nativeBalance && (
+                <div className={styles.balance}>
+                  <strong>Balance (XLM):</strong> {nativeBalance}
+                </div>
+              )}
+
+              <div className={styles.transactionSection}>
+                <h2 className={styles.sectionTitle}>Make a Transaction</h2>
+                <input
+                  className={styles.input}
+                  placeholder="Destination account ID"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                />
+                <input
+                  className={styles.input}
+                  placeholder="Amount (XLM)"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+                <input
+                  className={styles.input}
+                  placeholder="Memo (optional)"
+                  value={memo}
+                  onChange={(e) => setMemo(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.buttonGroup}>
+                {/* Botão Send Payment atualizado */}
+                <button
+                  onClick={handleTransaction}
+                  className={styles.createEventButton}
+                >
+                  Send Payment
+                </button>
+              </div>
             </div>
           )}
 
@@ -151,18 +203,29 @@ export const Home: React.FC = () => {
         </div>
       )}
 
-      {isPermitted && (
-         <div className="mt-12 w-full max-w-2xl rounded-lg border border-gray-600 bg-gray-700 p-6 shadow-lg">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold text-white">Meus Eventos</h2>
-              <button
-                onClick={handleCreateEventClick}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-                title="Criar novo evento"
-              >
-                <Plus size={20} />
-                Criar Evento
-              </button>
+            <div className={styles.eventsSection}>
+              <div className={styles.eventsHeader}>
+                <h2 className={styles.eventsTitle}>Meus Eventos</h2>
+                <button
+                  onClick={handleCreateEventClick}
+                  className={styles.createEventButton}
+                  title="Criar novo evento"
+                >
+                  <Plus size={20} />
+                  Criar Evento
+                </button>
+              </div>
+              {eventsIsLoading && <p>Carregando eventos...</p>}
+              {eventsError && <p>Erro ao carregar eventos.</p>}
+              <div className={styles.eventsGrid}>
+                {Array.isArray(events) && events.length > 0 ? (
+                  events.map((event: Event) => (
+                    <EventsCARD key={event.id} event={event} />
+                  ))
+                ) : (
+                  !eventsIsLoading && <p>Nenhum evento encontrado.</p>
+                )}
+              </div>
             </div>
             {eventsIsLoading && <p className="text-white">Carregando eventos...</p>}
             {eventsError && <p className="text-red-400">Erro ao carregar eventos.</p>}
