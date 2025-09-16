@@ -10,7 +10,7 @@ const app: Router = Router();
 app.get('/hello', (req, res) => res.send('Sertaneca Compagode'))
 
 app.use('/events', eventsRouter);
-app.use('/app', appRouter);
+// app.use('/app', appRouter);
 app.use('/expenses', expensesRouter);
 app.use('/notifications', notificationsRouter);
 

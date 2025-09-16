@@ -35,8 +35,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.finishEvent = exports.createEvent = exports.getEventsByUserId = exports.getEventById = void 0;
 const db_1 = require("../utils/db");
+const uuid_1 = require("uuid");
 const admin = __importStar(require("firebase-admin"));
-const { v4: uuidv4 } = require('uuid');
+// const { v4: uuidv4 } = require('uuid')
 const getEventById = async (req, res) => {
     try {
         const { eventId } = req.params;
@@ -85,7 +86,7 @@ const createEvent = async (req, res) => {
         if (!name || !members || !Array.isArray(members) || members.length === 0 || !origin) {
             return res.status(400).json({ error: 'Event name, a list of members, and an origin public key are required.' });
         }
-        const eventId = uuidv4();
+        const eventId = (0, uuid_1.v4)();
         const eventRef = db_1.db.collection('events').doc(eventId);
         const notificationsRef = db_1.db.collection('notifications');
         const batch = db_1.db.batch();

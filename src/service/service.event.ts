@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { db } from '../utils/db'; 
-// import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { Event, EventStatus } from "../models/model.event"
 import { Notification, NotificationStatus, NotificationType } from "../models/model.notification"
 import * as admin from 'firebase-admin'; 
-const { v4: uuidv4 } = require('uuid')
+// const { v4: uuidv4 } = require('uuid')
 
 export const getEventById = async (req: Request, res: Response) => {
   try {

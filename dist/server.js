@@ -8,7 +8,8 @@ const app_1 = __importDefault(require("./app"));
 const server = (0, express_1.default)();
 server.use("/", app_1.default);
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// server.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
+exports.default = server;
 //# sourceMappingURL=server.js.map
