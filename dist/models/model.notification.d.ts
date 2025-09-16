@@ -15,7 +15,6 @@ type Notification = {
         amount: number;
     }[];
     amount?: number;
-    read?: boolean;
     createdAt: Timestamp;
 };
 export { Notification, NotificationType, NotificationStatus };

@@ -15,4 +15,4 @@ type Notification = {
     createdAt: Timestamp
 }
 
-export { Notification, NotificationType, NotificationStatus }
+export type { Notification, NotificationType, NotificationStatus }

@@ -19,7 +19,7 @@ eventsRouter.get("/user/:userId", getEventsByUserId)
 
 eventsRouter.post("/create", createEvent);
 
-eventsRouter.post("/:eventId/add_user", addUserToEvent)
+eventsRouter.put("/:eventId/add_user", addUserToEvent)
 
 eventsRouter.post("/:eventId/finish", finishEvent);
 

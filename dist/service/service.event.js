@@ -120,16 +120,16 @@ exports.createEvent = createEvent;
 const addUserToEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { eventId } = req.params;
-        const { publicKey } = req.body;
-        if (!publicKey) {
+        const { userId } = req.body;
+        if (!userId) {
             return res.status(400).json({ error: 'User public key is required.' });
         }
         const eventRef = db_1.db.collection('events').doc(eventId);
         yield eventRef.update({
-            members: admin.firestore.FieldValue.arrayUnion(publicKey),
+            members: admin.firestore.FieldValue.arrayUnion(userId),
             nInvitations: admin.firestore.FieldValue.increment(1)
         });
-        res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
+        res.status(200).json({ message: `User ${userId} added to event ${eventId}.` });
     }
     catch (error) {
         console.error('Error adding user to event:', error);
