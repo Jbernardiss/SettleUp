@@ -86,6 +86,28 @@ export const createEvent = async (req: Request, res: Response) => {
   }
 };
 
+export const addUserToEvent = async (req: Request, res: Response) => {
+  try {
+    const { eventId } = req.params;
+    const { publicKey } = req.body;
+
+    if (!publicKey) {
+      return res.status(400).json({ error: 'User public key is required.' });
+    }
+
+    const eventRef = db.collection('events').doc(eventId);
+    
+    await eventRef.update({
+      members: admin.firestore.FieldValue.arrayUnion(publicKey)
+    });
+
+    res.status(200).json({ message: `User ${publicKey} added to event ${eventId}.` });
+  } catch (error) {
+    console.error('Error adding user to event:', error);
+    res.status(500).json({ error: 'Failed to add user.' });
+  }
+};
+
 export const finishEvent = async (req: Request, res: Response): Promise<void> => {
   const { eventId } = req.params;
 
