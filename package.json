@@ -13,7 +13,11 @@
   "dependencies": {
     "@prisma/client": "^6.16.1",
     "express": "^5.1.0",
-    "firebase-admin": "^13.5.0"
+    "firebase-admin": "^13.5.0",
+    "uuid": "^13.0.0",
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.544.0",
+    "react-router-dom": "^7.9.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
